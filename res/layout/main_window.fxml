@@ -1,39 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<VBox id="main_windows_vbox" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="400.0" minWidth="600.0" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <MenuBar>
+      <MenuBar id="main_window_menu_bar" prefHeight="18.0" prefWidth="1200.0" VBox.vgrow="NEVER">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu id="main_window_menu_File" mnemonicParsing="false" text="File">
             <items>
-              <MenuItem mnemonicParsing="false" text="Close" />
+              <MenuItem id="main_window_menu_File_Close" mnemonicParsing="false" text="Close" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
+          <Menu id="main_window_menu_Edit" mnemonicParsing="false" text="Edit">
             <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
+              <MenuItem id="main_window_menu_Edit_ClearLog" mnemonicParsing="false" text="ClearLog" />
+                  <MenuItem id="main_window_menu_Edit_Delete" mnemonicParsing="false" text="Delete" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Help">
+          <Menu id="main_window_menu_Help" mnemonicParsing="false" text="Help">
             <items>
-              <MenuItem mnemonicParsing="false" text="About" />
+              <MenuItem id="main_window_menu_Help_About" mnemonicParsing="false" text="About" />
+                  <MenuItem id="main_window_menu_Help_Contast" mnemonicParsing="false" text="Contast" />
+                  <MenuItem id="main_window_menu_Help_Help_F1" mnemonicParsing="false" text="Help F1" />
             </items>
           </Menu>
         </menus>
       </MenuBar>
-      <SplitPane fx:id="main_split_pane" dividerPositions="0.2, 0.8" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="570.0" prefWidth="900.0">
+      <SplitPane id="main_window_dac_split_pane" fx:id="main_split_pane" dividerPositions="0.15, 0.8" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" prefWidth="900.0" VBox.vgrow="ALWAYS">
         <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" />
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="513.0" prefWidth="530.0" />
-            <AnchorPane layoutX="10.0" layoutY="10.0" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+            <GridPane>
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints maxHeight="130.0" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                <RowConstraints vgrow="ALWAYS" />
+              </rowConstraints>
+               <children>
+                  <MenuBar snapToPixel="false">
+                    <menus>
+                      <Menu mnemonicParsing="false" text="DAC Policy" />
+                    </menus>
+                  </MenuBar>
+                  <TitledPane id="dac_subjects_titled_pane" animated="false" text="Subjects" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </TitledPane>
+               </children>
+            </GridPane>
+            <ScrollPane prefHeight="204.0" prefWidth="265.0">
+               <content>
+                  <TreeTableView id="dac_suject_acl_tree_table_view">
+                    <columns>
+                      <TreeTableColumn id="dac_acl_tree_table_column_CapabilityId" editable="false" prefWidth="100.0" sortable="false" text="CapabilityId" />
+                      <TreeTableColumn id="dac_acl_tree_table_column_SubjectId" editable="false" minWidth="0.0" prefWidth="100.0" sortable="false" text="SubjectId" />
+                        <TreeTableColumn id="dac_acl_tree_table_column_SubjectName" editable="false" minWidth="0.0" prefWidth="150.0" sortable="false" text="SubjectName" />
+                        <TreeTableColumn id="dac_acl_tree_table_column_ObjectId" editable="false" prefWidth="100.0" sortable="false" text="ObjectId" />
+                        <TreeTableColumn id="dac_acl_tree_table_column_ObjectName" editable="false" prefWidth="150.0" sortable="false" text="ObjectName" />
+                        <TreeTableColumn id="dac_acl_tree_table_column_GrantedSubjectId" editable="false" prefWidth="150.0" sortable="false" text="GrantedSubjectId" />
+                        <TreeTableColumn id="dac_acl_tree_table_column_GrantedSubjectId" editable="false" prefWidth="180.0" sortable="false" text="GrantedSubjectName" />
+                        <TreeTableColumn id="dac_acl_tree_table_column_CapabilityString" editable="false" prefWidth="150.0" sortable="false" text="CapabilityString" />
+                        <TreeTableColumn id="dac_acl_tree_table_column_CapabilityInfo" editable="false" prefWidth="200.0" sortable="false" text="CapabilityInfo" />
+                    </columns>
+                  </TreeTableView>
+               </content></ScrollPane>
+            <ScrollPane prefHeight="206.0" prefWidth="176.0" />
         </items>
       </SplitPane>
-      <HBox prefHeight="70.0" prefWidth="900.0" />
+      <SplitPane fx:id="main_split_pane1" dividerPositions="0.15, 0.8" layoutX="10.0" layoutY="42.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" prefWidth="900.0" VBox.vgrow="ALWAYS">
+         <items>
+            <GridPane>
+               <children>
+                  <MenuBar snapToPixel="false">
+                     <menus>
+                        <Menu mnemonicParsing="false" text="DBAC Policy" />
+                     </menus>
+                  </MenuBar>
+                  <TitledPane id="dbac_roles_tiled_pane" animated="false" text="Roles" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                     </content>
+                  </TitledPane>
+               </children>
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints maxHeight="130.0" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                  <RowConstraints vgrow="ALWAYS" />
+               </rowConstraints>
+            </GridPane>
+            <ScrollPane prefHeight="204.0" prefWidth="448.0" />
+            <ScrollPane prefHeight="204.0" prefWidth="265.0" />
+         </items>
+      </SplitPane>
+      <ScrollPane />
    </children>
 </VBox>
