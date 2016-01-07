@@ -1,9 +1,19 @@
-package com.github.soukie.DACPolicy.values;
+package com.github.soukie.model;
 
 /**
  * Created by qiyiy on 2016/1/5.
  */
-public class DACValues {
+public class ModelValues {
+    /**
+     * Whole Module Values.
+     */
+
+    public static final String login_user_admin_name = "admin";
+    public static final String login_user_admin_pass = "";
+
+    /**
+     * DAC Policy Values.
+     */
     public static final String CENTRALIZED_ACL = "centralized_acl_policy";
     public static final String DISTRIBUTED_ACL = "distributed_acl_policy";
     public static final String LIMITED_DISTRIBUTED_ACL = "limited_distributed_acl_policy";

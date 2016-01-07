@@ -1,7 +1,7 @@
-package com.github.soukie.DACPolicy.objects;
+package com.github.soukie.model.DACPolicy.objects;
 
-import com.github.soukie.DACPolicy.values.CapabilityList;
-import com.github.soukie.DACPolicy.values.DACValues;
+import com.github.soukie.model.DACPolicy.values.CapabilityList;
+import com.github.soukie.model.ModelValues;
 
 /**
  * The capability class that Subjects owned from Objects.
@@ -20,9 +20,9 @@ public class CapabilityOfSubject {
     private CapabilityList capabilityList;
     private String capabilityInfo;
 
-    public static final String CAPABILITY_TYPE_CENTRALIZED_ACL = DACValues.CENTRALIZED_ACL;
-    public static final String CAPABILITY_TYPE_DISTRIBUTED_ACL = DACValues.DISTRIBUTED_ACL;
-    public static final String CAPABILITY_TYPE_LIMITED_DISTRIBUTED_ACL = DACValues.LIMITED_DISTRIBUTED_ACL;
+    public static final String CAPABILITY_TYPE_CENTRALIZED_ACL = ModelValues.CENTRALIZED_ACL;
+    public static final String CAPABILITY_TYPE_DISTRIBUTED_ACL = ModelValues.DISTRIBUTED_ACL;
+    public static final String CAPABILITY_TYPE_LIMITED_DISTRIBUTED_ACL = ModelValues.LIMITED_DISTRIBUTED_ACL;
 
 
     public CapabilityOfSubject(int capabilityId,

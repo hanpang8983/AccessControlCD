@@ -1,4 +1,4 @@
-package com.github.soukie.DACPolicy.database;
+package com.github.soukie.model.DACPolicy.database;
 
 import junit.framework.TestCase;
 import org.junit.Assert;

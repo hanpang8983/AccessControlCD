@@ -1,4 +1,4 @@
-package com.github.soukie.DACPolicy.objects;
+package com.github.soukie.model.DACPolicy.objects;
 
 import java.util.HashMap;
 

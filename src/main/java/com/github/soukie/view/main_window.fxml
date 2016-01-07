@@ -26,7 +26,7 @@
           <Menu id="main_window_menu_Help" mnemonicParsing="false" text="Help">
             <items>
               <MenuItem id="main_window_menu_Help_About" mnemonicParsing="false" text="About" />
-                  <MenuItem id="main_window_menu_Help_Contast" mnemonicParsing="false" text="Contast" />
+                  <MenuItem id="main_window_menu_Help_Contact" mnemonicParsing="false" text="Contact" />
                   <MenuItem id="main_window_menu_Help_Help_F1" mnemonicParsing="false" text="Help F1" />
             </items>
           </Menu>

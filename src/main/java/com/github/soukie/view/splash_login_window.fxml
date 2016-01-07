@@ -11,7 +11,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.soukie.ui.controllers.SplashLoginController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.soukie.view.SplashLoginController">
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="500.0" />
     </columnConstraints>
@@ -34,24 +34,24 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             </rowConstraints>
             <children>
-                <ImageView fitHeight="40.0" fitWidth="40.0" nodeOrientation="RIGHT_TO_LEFT" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                <ImageView fx:id="user_imageView" fitHeight="40.0" fitWidth="40.0" nodeOrientation="RIGHT_TO_LEFT" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
                     <image>
-                        <Image url="@../login_user.png" />
+                        <Image url="@../../../../../../../res/image/login_user.png" />
                     </image>
                 </ImageView>
-                <ImageView fitHeight="40.0" fitWidth="40.0" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+                <ImageView fx:id="pass_imageView" fitHeight="40.0" fitWidth="40.0" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
                     <image>
-                        <Image url="@../login_cipher.png" />
+                        <Image url="@../../../../../../../res/image/login_pass.png" />
                     </image>
                 </ImageView>
-                <TextField prefHeight="14.0" prefWidth="167.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                <PasswordField prefHeight="15.0" prefWidth="167.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <Button mnemonicParsing="false" style="-fx-background-color: #00000000;" text="Login" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                <TextField fx:id="user_name_testFiled" prefHeight="14.0" prefWidth="167.0" promptText="username" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <PasswordField fx:id="user_passwordFiled" prefHeight="15.0" prefWidth="167.0" promptText="password" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <Button fx:id="login_button" mnemonicParsing="false" style="-fx-background-color: #00000000;" text="Login" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1">
                     <font>
                         <Font name="System Bold" size="15.0" />
                     </font>
                 </Button>
-                <Button alignment="BOTTOM_LEFT" layoutX="344.0" layoutY="55.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="166.0" style="-fx-background-color: #00000000;" text="forget password?" textAlignment="CENTER" textFill="#1d7828" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                <Button fx:id="forget_pass_button" alignment="BOTTOM_LEFT" layoutX="344.0" layoutY="55.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="166.0" style="-fx-background-color: #00000000;" text="forget password?" textAlignment="CENTER" textFill="#1d7828" GridPane.columnIndex="2" GridPane.rowIndex="2" />
             </children>
         </GridPane>
         <GridPane GridPane.rowIndex="2">
@@ -72,7 +72,7 @@
                     <graphic>
                         <ImageView fitHeight="40.0" fitWidth="43.0">
                             <image>
-                                <Image url="@../Soukie_l.png" />
+                                <Image url="@../../../../../../../res/image/Soukie_l.png" />
                             </image>
                         </ImageView>
                     </graphic>
@@ -80,7 +80,7 @@
                 <Label contentDisplay="RIGHT" layoutX="344.0" layoutY="51.0" prefHeight="20.0" prefWidth="120.0" text="Beta v1.0.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
             </children>
         </GridPane>
-        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="100.0" prefWidth="509.0" text="Welcom to Access Control Application" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="100.0" prefWidth="509.0" text="Welcome to Access Control Application" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
             <font>
                 <Font size="26.0" />
             </font>

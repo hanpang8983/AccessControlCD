@@ -1,4 +1,4 @@
-package com.github.soukie.DACPolicy.objects;
+package com.github.soukie.model.DACPolicy.objects;
 
 /**
  * The ACL Object class contains all of a object' properties.
