@@ -19,13 +19,10 @@ import java.io.IOException;
 public class MainAPP extends Application {
 
     private Stage primaryStage;
-    public Parent splash_login_window;
-    public Parent main_window;
+    public Parent splashLoginWindow;
+    public Parent mainWindow;
 
     private SystemAdminUser systemAdminUser;
-    private String systemAdminUserPropertiesFilePath = "res/properties/system_admin_user.ini";
-
-    private SplashLoginController splashLoginLayoutLoaderController;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -36,7 +33,7 @@ public class MainAPP extends Application {
         initMainWindow();
 
         primaryStage.setTitle("Login");
-        primaryStage.setScene(new Scene(splash_login_window, 500, 400));
+        primaryStage.setScene(new Scene(splashLoginWindow, 500, 400));
         primaryStage.initStyle(StageStyle.UNIFIED);
         primaryStage.getIcons().add(new Image("file:res/image/Soukie_l.png"));
         primaryStage.show();
@@ -45,6 +42,7 @@ public class MainAPP extends Application {
     }
 
     private void initSystemLoginAdminUserStatus() {
+        String systemAdminUserPropertiesFilePath = "res/properties/system_admin_user.ini";
         systemAdminUser = SystemUserManagement.getDefaultSystemAdminUser(systemAdminUserPropertiesFilePath);
     }
 
@@ -52,9 +50,9 @@ public class MainAPP extends Application {
 
         try {
             FXMLLoader splashLoginLayoutLoader = new FXMLLoader();
-            splashLoginLayoutLoader.setLocation(MainAPP.class.getResource("view/splash_login_window.fxml"));
-            this.splash_login_window = splashLoginLayoutLoader.load();
-            this.splashLoginLayoutLoaderController = (SplashLoginController) splashLoginLayoutLoader.getController();
+            splashLoginLayoutLoader.setLocation(getClass().getResource("view/splash_login_window.fxml"));
+            this.splashLoginWindow = splashLoginLayoutLoader.load();
+            SplashLoginController splashLoginLayoutLoaderController = splashLoginLayoutLoader.getController();
             splashLoginLayoutLoaderController.setMainAPP(this);
         } catch (IOException e) {
             e.printStackTrace();
@@ -64,9 +62,10 @@ public class MainAPP extends Application {
     }
 
     private void initMainWindow() {
-        FXMLLoader mainWindowLayoutLoader = new FXMLLoader(getClass().getResource("view/main_window.fxml"));
         try {
-            main_window = mainWindowLayoutLoader.load();
+            FXMLLoader mainWindowLayoutLoader = new FXMLLoader();
+            mainWindowLayoutLoader.setLocation(getClass().getResource("view/main_window.fml"));
+            mainWindow = mainWindowLayoutLoader.load();
         } catch (IOException e) {
             e.printStackTrace();
         }

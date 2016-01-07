@@ -16,8 +16,8 @@ import java.util.Properties;
  * One class can operate and management database.
  * Created by qiyiy on 2016/1/5.
  */
-public class DatabaseOperation {
-    private String operationTime;
+public class DACDatabaseOperation {
+    private long operationTime;
     private String DatabaseDriverPath;
 
     private Connection connection;
@@ -31,12 +31,12 @@ public class DatabaseOperation {
     public static final String MYSQL_DRIVER = "com.mysql.jdbc.Driver";
 
 
-    public DatabaseOperation(String operationTime) {
+    public DACDatabaseOperation(long operationTime) {
         this.operationTime = operationTime;
         this.DatabaseDriverPath = MYSQL_DRIVER;
     }
 
-    public DatabaseOperation(String operationTime, String mySQLDriverPath) {
+    public DACDatabaseOperation(long operationTime, String mySQLDriverPath) {
         this.operationTime = operationTime;
         this.DatabaseDriverPath = mySQLDriverPath;
     }
@@ -54,10 +54,15 @@ public class DatabaseOperation {
         return DatabaseDriverPath;
     }
 
-    public String getOperationTime() {
+    public long getOperationTime() {
         return operationTime;
     }
 
+    /**
+     * Initialize the database connection.
+     * @param databasePropertiesFilePath: database properties file path.
+     * @throws ClassNotFoundException
+     */
     public void initDatabaseConnection(String databasePropertiesFilePath) throws ClassNotFoundException {
         Class.forName(DatabaseDriverPath);
         try {
@@ -73,6 +78,13 @@ public class DatabaseOperation {
         }
     }
 
+    /**
+     * Initialize the database connection.
+     * @param url: database connection url
+     * @param user: database user name
+     * @param pass: database user pass
+     * @throws ClassNotFoundException
+     */
     public void initDatabaseConnection(String url, String user, String pass) throws ClassNotFoundException {
         Class.forName(DatabaseDriverPath);
         try {
@@ -721,17 +733,17 @@ public class DatabaseOperation {
     /*public ArrayList<CapabilityOfSubject> queryCapabilitiesOfSubjectByIds(int id, int idMod) {
         String querySql = "";
         switch (idMod) {
-            case DatabaseOperation.QUERY_CAPABILITIES_MOD_SUBJECT_ID:
+            case DACDatabaseOperation.QUERY_CAPABILITIES_MOD_SUBJECT_ID:
                 querySql = "select * from " +
                         ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                         " where subjectId=" + id + ";";
                 break;
-            case DatabaseOperation.QUERY_CAPABILITIES_MOD_OBJECT_ID:
+            case DACDatabaseOperation.QUERY_CAPABILITIES_MOD_OBJECT_ID:
                 querySql = "select * from " +
                         ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                         " where objectId=" + id + ";";
                 break;
-            case DatabaseOperation.QUERY_CAPABILITIES_MOD_GRANTED_SUBJECT_ID:
+            case DACDatabaseOperation.QUERY_CAPABILITIES_MOD_GRANTED_SUBJECT_ID:
                 querySql="select * from " +
                         ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                         " where grantedSubjectId=" + id + ";";

@@ -5,15 +5,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * Created by qiyiy on 2016/1/5.
  */
-public class DatabaseOperationTest extends TestCase{
+public class DACDatabaseOperationTest extends TestCase{
 
-    DatabaseOperation testDatabaseOperation;
+    DACDatabaseOperation testDACDatabaseOperation;
 
     @Test
     public void testChangeConnection() throws Exception {
@@ -45,9 +44,9 @@ public class DatabaseOperationTest extends TestCase{
     @Test
     public void testAddSubject() throws Exception {
         System.out.println("test start.");
-        testDatabaseOperation = new DatabaseOperation(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        testDatabaseOperation.initDatabaseConnection("jdbc:mysql://127.0.0.1:3306/accesscontrolcd", "root", "142123");
+        testDACDatabaseOperation = new DACDatabaseOperation(new Date().getTime());
+        testDACDatabaseOperation.initDatabaseConnection("jdbc:mysql://127.0.0.1:3306/accesscontrolcd", "root", "142123");
 
-        Assert.assertEquals(1, testDatabaseOperation.addSubject(1, "s1", "123456", "test"));
+        Assert.assertEquals(1, testDACDatabaseOperation.addSubject(1, "s1", "123456", "test"));
     }
 }

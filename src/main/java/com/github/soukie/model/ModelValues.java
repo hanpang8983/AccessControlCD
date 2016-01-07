@@ -8,8 +8,7 @@ public class ModelValues {
      * Whole Module Values.
      */
 
-    public static final String login_user_admin_name = "admin";
-    public static final String login_user_admin_pass = "";
+    public static final String DATABASE_MYSQL_PROPERTIES_FILE_PATH = "res/properties/mysql.ini";
 
     /**
      * DAC Policy Values.
