@@ -2,6 +2,7 @@ package com.github.soukie;
 
 import com.github.soukie.model.SystemUser.SystemAdminUser;
 import com.github.soukie.model.SystemUser.SystemUserManagement;
+import com.github.soukie.view.MainWindowController;
 import com.github.soukie.view.SplashLoginController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -21,6 +22,7 @@ public class MainAPP extends Application {
     private Stage primaryStage;
     public Parent splashLoginWindow;
     public Parent mainWindow;
+    public Parent modifyAdminInfo;
 
     private SystemAdminUser systemAdminUser;
 
@@ -50,8 +52,8 @@ public class MainAPP extends Application {
 
         try {
             FXMLLoader splashLoginLayoutLoader = new FXMLLoader();
-            splashLoginLayoutLoader.setLocation(getClass().getResource("view/splash_login_window.fxml"));
-            this.splashLoginWindow = splashLoginLayoutLoader.load();
+            splashLoginLayoutLoader.setLocation(MainAPP.class.getResource("view/splash_login_window.fxml"));
+            splashLoginWindow = splashLoginLayoutLoader.load();
             SplashLoginController splashLoginLayoutLoaderController = splashLoginLayoutLoader.getController();
             splashLoginLayoutLoaderController.setMainAPP(this);
         } catch (IOException e) {
@@ -64,8 +66,11 @@ public class MainAPP extends Application {
     private void initMainWindow() {
         try {
             FXMLLoader mainWindowLayoutLoader = new FXMLLoader();
-            mainWindowLayoutLoader.setLocation(getClass().getResource("view/main_window.fml"));
+            mainWindowLayoutLoader.setLocation(MainAPP.class.getResource("view/main_window.fxml"));
             mainWindow = mainWindowLayoutLoader.load();
+            MainWindowController mainWindowController = mainWindowLayoutLoader.getController();
+            mainWindowController.setMainAPP(this);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

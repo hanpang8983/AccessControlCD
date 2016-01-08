@@ -1,10 +1,11 @@
-package com.github.soukie.model.DACPolicy.database;
+package com.github.soukie.model.database;
 
+import com.github.soukie.model.ModelValues;
 import junit.framework.TestCase;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.Statement;
 import java.util.Date;
 
 /**
@@ -45,8 +46,9 @@ public class DACDatabaseOperationTest extends TestCase{
     public void testAddSubject() throws Exception {
         System.out.println("test start.");
         testDACDatabaseOperation = new DACDatabaseOperation(new Date().getTime());
-        testDACDatabaseOperation.initDatabaseConnection("jdbc:mysql://127.0.0.1:3306/accesscontrolcd", "root", "142123");
+        testDACDatabaseOperation.initDatabaseConnection("jdbc:mysql://127.0.0.1:3306/access_control_cd", "root", "142123");
 
-        Assert.assertEquals(1, testDACDatabaseOperation.addSubject(1, "s1", "123456", "test"));
+        Statement statement = testDACDatabaseOperation.getConnection().createStatement();
+        statement.executeUpdate(ModelValues.DAC_AL_CAPABILITY_TABLE_CREATE_SQL);
     }
 }

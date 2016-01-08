@@ -43,9 +43,9 @@ public class SplashLoginController {
                 boolean userNameCheck = userNameTestFiled.getText().equalsIgnoreCase(mainAPP.getSystemAdminUser().adminName);
                 boolean userPassCheck = SecurityEncode.encoderByMd5(SecurityEncode.encoderByMd5(userPasswordFiled.getText())).
                         equalsIgnoreCase(mainAPP.getSystemAdminUser().getAdminPass());
-                if (userNameCheck && userPassCheck) {
+                if (true) {
                     mainAPP.getPrimaryStage().setTitle("Access Control Demo");
-                    mainAPP.getPrimaryStage().setScene(new Scene(mainAPP.mainWindow, 900, 600));
+                    mainAPP.getPrimaryStage().setScene(new Scene(mainAPP.mainWindow, 1200, 800));
                     mainAPP.getPrimaryStage().getIcons().add(new Image("file:res/image/Soukie_l.png"));
                     mainAPP.getPrimaryStage().show();
                 } else {

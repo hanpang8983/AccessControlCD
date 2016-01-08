@@ -1,8 +1,8 @@
-package com.github.soukie.model.DACPolicy.database;
+package com.github.soukie.model.database;
 
 import com.github.soukie.model.DACPolicy.objects.ACLObject;
 import com.github.soukie.model.DACPolicy.objects.ACLSubject;
-import com.github.soukie.model.DACPolicy.objects.CapabilityOfSubject;
+import com.github.soukie.model.DACPolicy.objects.Capability;
 import com.github.soukie.model.ModelValues;
 import com.sun.istack.internal.NotNull;
 
@@ -22,6 +22,8 @@ public class DACDatabaseOperation {
 
     private Connection connection;
 
+    public int connectionStatus;
+
     public static final int QUERY_CAPABILITIES_MOD_SUBJECT_ID = 0;
     public static final int QUERY_CAPABILITIES_MOD_OBJECT_ID = 1;
     public static final int QUERY_CAPABILITIES_MOD_GRANTED_SUBJECT_ID = 2;
@@ -34,11 +36,14 @@ public class DACDatabaseOperation {
     public DACDatabaseOperation(long operationTime) {
         this.operationTime = operationTime;
         this.DatabaseDriverPath = MYSQL_DRIVER;
+        this.connectionStatus = 1;
     }
 
     public DACDatabaseOperation(long operationTime, String mySQLDriverPath) {
         this.operationTime = operationTime;
         this.DatabaseDriverPath = mySQLDriverPath;
+        this.connectionStatus = 1;
+
     }
 
     /**
@@ -48,6 +53,30 @@ public class DACDatabaseOperation {
      */
     public void changeConnection(@NotNull Connection newConnection) {
         this.connection = newConnection;
+    }
+
+    /**
+     * The method to close database's connection
+     * @return 0: close failed; 1: close succeed.
+     */
+    public int closeConnection() {
+        try {
+            connection.close();
+            this.connectionStatus = 0;
+
+            return 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * The method to return operation's database connection.
+     * @return
+     */
+    public Connection getConnection() {
+        return connection;
     }
 
     public String getMySQLDriverPath() {
@@ -103,24 +132,24 @@ public class DACDatabaseOperation {
     /**
      * The method to add a subject in database.
      *
-     * @param sId:         subject's id
-     * @param sName:       subject's name
-     * @param sPassword:   subject's password
-     * @param subjectInfo: subject's information
+     * @param id:         subject's id
+     * @param name:       subject's name
+     * @param password:   subject's password
+     * @param info: subject's information
      * @return return int 0: add subject error 1: add one subject succeed
      */
 
-    public int addSubject(int sId,
-                          String sName,
-                          String sPassword,
-                          String subjectInfo) {
+    public int addSubject(int id,
+                          String name,
+                          String password,
+                          String info) {
         String addSubjectRecordSql = "insert into " +
                 ModelValues.DAC_SUBJECT_TABLE_NAME +
-                "(sId,sName,sPassword,subjectInfo) values('" +
-                sId + "','" +
-                sName + "','" +
-                sPassword + "','" +
-                subjectInfo + "');";
+                "(id,name,password,info) values('" +
+                id + "','" +
+                name + "','" +
+                password + "','" +
+                info + "');";
 
         try (
                 Statement statement = connection.createStatement();
@@ -145,15 +174,15 @@ public class DACDatabaseOperation {
     /**
      * The method to delete a subject from table.
      *
-     * @param sId: the id of subject that will be deleted
-     * @return return int 0: operated failed; 1: operated succeed; 2: there is not the record as id = sId in the table
+     * @param id: the id of subject that will be deleted
+     * @return return int 0: operated failed; 1: operated succeed; 2: there is not the record as id = id in the table
      */
 
-    public int deleteSubject(int sId) {
-        String deleteSubjectSql = "delete from +" + ModelValues.DAC_SUBJECT_TABLE_NAME + " where sId=" + sId + ";";
+    public int deleteSubject(int id) {
+        String deleteSubjectSql = "delete from +" + ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";";
         try (
                 Statement statement = connection.createStatement();
-                ResultSet checkResultSet = statement.executeQuery("select * from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where sId=" + sId + ";")
+                ResultSet checkResultSet = statement.executeQuery("select * from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";")
         ) {
             //Check fi the table has the record.
             if (!checkResultSet.next()) {
@@ -171,21 +200,21 @@ public class DACDatabaseOperation {
     /**
      * The method to modify a subject' values.
      *
-     * @param sId:         subject's id
-     * @param sName:       subject's name
-     * @param sPassword:   subject's password
-     * @param subjectInfo: subject's information
-     * @return 0: operated failed; 1: operated succeed 2: there is no the record as id = sId in the table
+     * @param id:         subject's id
+     * @param name:       subject's name
+     * @param password:   subject's password
+     * @param info: subject's information
+     * @return 0: operated failed; 1: operated succeed 2: there is no the record as id = id in the table
      */
-    public int modifySubject(int sId, String sName, String sPassword, String subjectInfo) {
+    public int modifySubject(int id, String name, String password, String info) {
         String modifySubjectSql = "update " + ModelValues.DAC_SUBJECT_TABLE_NAME + " set " +
-                "sName=" + sName +
-                ",sPassword=" + sPassword +
-                ",subjectInfo=" + subjectInfo +
-                " where sId=" + sId + ";";
+                "name=" + name +
+                ",password=" + password +
+                ",info=" + info +
+                " where id=" + id + ";";
         try (
                 Statement statement = connection.createStatement();
-                ResultSet checkResultSet = statement.executeQuery("select * from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where sId=" + sId + ";")
+                ResultSet checkResultSet = statement.executeQuery("select * from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";")
         ) {
             //Check if there is the capability record in the table.
             if (!checkResultSet.next()) {
@@ -203,11 +232,11 @@ public class DACDatabaseOperation {
     /**
      * The method to query a subject.
      *
-     * @param sId: id of a subject that will be queried
-     * @return null: queried nothing; ACLSubject: the subject with id = sId
+     * @param id: id of a subject that will be queried
+     * @return null: queried nothing; ACLSubject: the subject with id = id
      */
-    public ACLSubject queryOneSubject(int sId) {
-        String queryOneSubjectSql = "select * from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where sId=" + sId + ";";
+    public ACLSubject queryOneSubject(int id) {
+        String queryOneSubjectSql = "select * from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";";
         try (
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery(queryOneSubjectSql)
@@ -215,7 +244,7 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                return new ACLSubject(sId,
+                return new ACLSubject(id,
                         resultSet.getString(2),
                         resultSet.getString(3),
                         resultSet.getString(4));
@@ -264,23 +293,23 @@ public class DACDatabaseOperation {
     /**
      * The method to add a object.
      *
-     * @param oId:             object's id
-     * @param oName:           object's name
-     * @param objectInfo:      object's information
+     * @param id:             object's id
+     * @param name:           object's name
+     * @param info:      object's information
      * @param createSubjectId: id of the subject that created the object
      * @return 0: operated failed; 1: operated succeed
      */
-    public int addObject(int oId,
-                         String oName,
-                         String objectInfo,
+    public int addObject(int id,
+                         String name,
+                         String info,
                          int createSubjectId,
                          boolean executable) {
         String addObjectRecordSql = "insert into " +
                 ModelValues.DAC_OBJECT_TABLE_NAME +
-                "(oId,oName,objectInfo,createSubjectId,executeable) values('" +
-                oId + "','" +
-                oName + "','" +
-                objectInfo + "','" +
+                "(id,name,info,createSubjectId,executeable) values('" +
+                id + "','" +
+                name + "','" +
+                info + "','" +
                 createSubjectId + "','" +
                 executable + "');";
 
@@ -307,16 +336,16 @@ public class DACDatabaseOperation {
     /**
      * The method to delete a object.
      *
-     * @param oId: object's id
-     * @return 0: operated failed; 1: operated succeed; 2: there is no record as id = oId in the table
+     * @param id: object's id
+     * @return 0: operated failed; 1: operated succeed; 2: there is no record as id = id in the table
      */
-    public int deleteObject(int oId) {
-        String deleteObjectSql = "delete from +" + ModelValues.DAC_OBJECT_TABLE_NAME + " where oId=" + oId + ";";
+    public int deleteObject(int id) {
+        String deleteObjectSql = "delete from +" + ModelValues.DAC_OBJECT_TABLE_NAME + " where id=" + id + ";";
         try (
                 Statement statement = connection.createStatement();
                 ResultSet checkResultSet = statement.executeQuery("select * from " +
                         ModelValues.DAC_OBJECT_TABLE_NAME +
-                        " where oId=" + oId + ";")
+                        " where id=" + id + ";")
         ) {
             //Check is the table empty.
             if (!checkResultSet.next()) {
@@ -334,24 +363,24 @@ public class DACDatabaseOperation {
     /**
      * The method to modify a object
      *
-     * @param oId:             object's id
-     * @param oName:           object's name
-     * @param objectInfo:      object's information
+     * @param id:             object's id
+     * @param name:           object's name
+     * @param info:      object's information
      * @param createSubjectId: the id of subject that created the object
-     * @return 0: operated failed; 1: operated succeed; 2: there is no the record as id = oId int the table
+     * @return 0: operated failed; 1: operated succeed; 2: there is no the record as id = id int the table
      */
-    public int modifyObject(int oId, String oName, String objectInfo, int createSubjectId, boolean executable) {
+    public int modifyObject(int id, String name, String info, int createSubjectId, boolean executable) {
         String modifyObjectSql = "update " + ModelValues.DAC_OBJECT_TABLE_NAME + " set " +
-                "oName=" + oName +
-                ",objectInfo=" + objectInfo +
+                "name=" + name +
+                ",info=" + info +
                 ",createSubjectId=" + createSubjectId +
                 ",executeable=" + executable +
-                " where oId=" + oId + ";";
+                " where id=" + id + ";";
         try (
                 Statement statement = connection.createStatement();
                 ResultSet checkResultSet = statement.executeQuery("select * from " +
                         ModelValues.DAC_SUBJECT_TABLE_NAME +
-                        " where oId=" + oId + ";")
+                        " where id=" + id + ";")
         ) {
             //Check is the table empty.
             if (!checkResultSet.next()) {
@@ -367,13 +396,13 @@ public class DACDatabaseOperation {
     }
 
     /**
-     * The method to query a object with di = oId
+     * The method to query a object with di = id
      *
-     * @param oId: subject's id
+     * @param id: subject's id
      * @return null: queried failed; ACLObject: one ACLObject
      */
-    public ACLObject queryOneObject(int oId) {
-        String queryOneObjectSql = "select * from " + ModelValues.DAC_OBJECT_TABLE_NAME + " while oId=" + oId + ";";
+    public ACLObject queryOneObject(int id) {
+        String queryOneObjectSql = "select * from " + ModelValues.DAC_OBJECT_TABLE_NAME + " while id=" + id + ";";
         try (
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery(queryOneObjectSql)
@@ -381,7 +410,7 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                return new ACLObject(oId,
+                return new ACLObject(id,
                         resultSet.getString(2),
                         resultSet.getString(3),
                         resultSet.getString(4),
@@ -399,7 +428,7 @@ public class DACDatabaseOperation {
      * @return null: queried failed; ArrayList<ACLObject>: ArrayList contains all record objects
      */
     public ArrayList<ACLObject> queryAllObjects() {
-        String queryAllObjectsSql = "select from " + ModelValues.DAC_OBJECT_TABLE_NAME + ";";
+        String queryAllObjectsSql = "select * from " + ModelValues.DAC_OBJECT_TABLE_NAME + ";";
         ArrayList<ACLObject> resultQueryAllObjects = new ArrayList<>();
         try (
                 Statement statement = connection.createStatement();
@@ -538,9 +567,9 @@ public class DACDatabaseOperation {
     /**
      * The method to query a capability record according capability's id
      * @param capabilityId: capability's id
-     * @return null: queried failed; CapabilityOfSubject: new capability of subject
+     * @return null: queried failed; Capability: new capability of subject
      */
-    public CapabilityOfSubject queryOneCapabilityOfSubject(int capabilityId) {
+    public Capability queryOneCapabilityOfSubject(int capabilityId) {
         String queryOneCapabilityOfSubjectSql = "select * from " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where capabilityId=" +
@@ -552,7 +581,7 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                return new CapabilityOfSubject(capabilityId,
+                return new Capability(capabilityId,
                         resultSet.getInt(2),
                         resultSet.getString(3),
                         resultSet.getInt(4),
@@ -571,11 +600,11 @@ public class DACDatabaseOperation {
 
     /**
      * The method to query all record of capability in the table.
-     * @return null: queried failed; ArrayList<CapabilityOfSubject>: queried succeed
+     * @return null: queried failed; ArrayList<Capability>: queried succeed
      */
-    public ArrayList<CapabilityOfSubject> queryAllCapabilitiesOfSubject() {
+    public ArrayList<Capability> queryAllCapabilitiesOfSubject() {
         String queryAllCapabilityOfSubject = "select * from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME + ";";
-        ArrayList<CapabilityOfSubject> resultCapabilityOfSubjectArrayList = new ArrayList<>();
+        ArrayList<Capability> resultCapabilityArrayList = new ArrayList<>();
         try (
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery(queryAllCapabilityOfSubject)
@@ -583,7 +612,7 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                resultCapabilityOfSubjectArrayList.add(new CapabilityOfSubject(resultSet.getInt(1),
+                resultCapabilityArrayList.add(new Capability(resultSet.getInt(1),
                         resultSet.getInt(2),
                         resultSet.getString(3),
                         resultSet.getInt(4),
@@ -593,7 +622,7 @@ public class DACDatabaseOperation {
                         resultSet.getString(8),
                         resultSet.getString(9)));
                 while (resultSet.next()) {
-                    resultCapabilityOfSubjectArrayList.add(new CapabilityOfSubject(resultSet.getInt(1),
+                    resultCapabilityArrayList.add(new Capability(resultSet.getInt(1),
                             resultSet.getInt(2),
                             resultSet.getString(3),
                             resultSet.getInt(4),
@@ -603,7 +632,7 @@ public class DACDatabaseOperation {
                             resultSet.getString(8),
                             resultSet.getString(9)));
                 }
-                return resultCapabilityOfSubjectArrayList;
+                return resultCapabilityArrayList;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -611,11 +640,11 @@ public class DACDatabaseOperation {
         }
     }
 
-    public ArrayList<CapabilityOfSubject> queryCapabilityOfSubjectsBySubjectId(int subjectId) {
+    public ArrayList<Capability> queryCapabilityOfSubjectsBySubjectId(int subjectId) {
         String queryOneCapabilityOfSubjectSql = "select * from " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where subjectId=" + subjectId + ";";
-        ArrayList<CapabilityOfSubject> result = new ArrayList<>();
+        ArrayList<Capability> result = new ArrayList<>();
         try (
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery(queryOneCapabilityOfSubjectSql)
@@ -623,7 +652,7 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                result.add(new CapabilityOfSubject(resultSet.getInt(1),
+                result.add(new Capability(resultSet.getInt(1),
                         resultSet.getInt(2),
                         resultSet.getString(3),
                         resultSet.getInt(4),
@@ -633,7 +662,7 @@ public class DACDatabaseOperation {
                         resultSet.getString(8),
                         resultSet.getString(9)));
                 while (resultSet.next()) {
-                    result.add(new CapabilityOfSubject(resultSet.getInt(1),
+                    result.add(new Capability(resultSet.getInt(1),
                             resultSet.getInt(2),
                             resultSet.getString(3),
                             resultSet.getInt(4),
@@ -651,11 +680,11 @@ public class DACDatabaseOperation {
         }
     }
 
-    public ArrayList<CapabilityOfSubject> queryCapabilityOfSubjectsByObjectId(int objectId) {
+    public ArrayList<Capability> queryCapabilityOfSubjectsByObjectId(int objectId) {
         String queryOneCapabilityOfSubjectSql = "select * from " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where objectId=" + objectId + ";";
-        ArrayList<CapabilityOfSubject> result = new ArrayList<>();
+        ArrayList<Capability> result = new ArrayList<>();
         try (
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery(queryOneCapabilityOfSubjectSql)
@@ -663,7 +692,7 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                result.add(new CapabilityOfSubject(resultSet.getInt(1),
+                result.add(new Capability(resultSet.getInt(1),
                         resultSet.getInt(2),
                         resultSet.getString(3),
                         resultSet.getInt(4),
@@ -673,7 +702,7 @@ public class DACDatabaseOperation {
                         resultSet.getString(8),
                         resultSet.getString(9)));
                 while (resultSet.next()) {
-                    result.add(new CapabilityOfSubject(resultSet.getInt(1),
+                    result.add(new Capability(resultSet.getInt(1),
                             resultSet.getInt(2),
                             resultSet.getString(3),
                             resultSet.getInt(4),
@@ -690,11 +719,11 @@ public class DACDatabaseOperation {
             return null;
         }
     }
-    public ArrayList<CapabilityOfSubject> queryCapabilityOfSubjectsByGrantedSubjectId(int grantedSubjectId) {
+    public ArrayList<Capability> queryCapabilityOfSubjectsByGrantedSubjectId(int grantedSubjectId) {
         String queryOneCapabilityOfSubjectSql = "select * from " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where grantedSubjectId=" + grantedSubjectId + ";";
-        ArrayList<CapabilityOfSubject> result = new ArrayList<>();
+        ArrayList<Capability> result = new ArrayList<>();
         try (
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery(queryOneCapabilityOfSubjectSql)
@@ -702,7 +731,7 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                result.add(new CapabilityOfSubject(resultSet.getInt(1),
+                result.add(new Capability(resultSet.getInt(1),
                         resultSet.getInt(2),
                         resultSet.getString(3),
                         resultSet.getInt(4),
@@ -712,7 +741,7 @@ public class DACDatabaseOperation {
                         resultSet.getString(8),
                         resultSet.getString(9)));
                 while (resultSet.next()) {
-                    result.add(new CapabilityOfSubject(resultSet.getInt(1),
+                    result.add(new Capability(resultSet.getInt(1),
                             resultSet.getInt(2),
                             resultSet.getString(3),
                             resultSet.getInt(4),
@@ -730,7 +759,7 @@ public class DACDatabaseOperation {
         }
     }
 
-    /*public ArrayList<CapabilityOfSubject> queryCapabilitiesOfSubjectByIds(int id, int idMod) {
+    /*public ArrayList<Capability> queryCapabilitiesOfSubjectByIds(int id, int idMod) {
         String querySql = "";
         switch (idMod) {
             case DACDatabaseOperation.QUERY_CAPABILITIES_MOD_SUBJECT_ID:
@@ -758,16 +787,16 @@ public class DACDatabaseOperation {
     }*/
     /*
      *
-     * @param sId
+     * @param id
      * @param connection
      * @param operationSql
      * @param operationMod int 0: add a subject;
      *                     int 1: delete a subject;
      *                     int 2: modify a subject;
-     * @return public int operateSubjectRecords(@NotNull String sId, @NotNull Connection connection, @NotNull String operationSql, int operationMod) {
+     * @return public int operateSubjectRecords(@NotNull String id, @NotNull Connection connection, @NotNull String operationSql, int operationMod) {
     try (
     Statement statement = connection.createStatement();
-    ResultSet checkResult = statement.executeQuery("select * from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where sId=" + sId + ";")
+    ResultSet checkResult = statement.executeQuery("select * from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";")
     ) {
     //Check is the record exist.
     if (!checkResult.next()) {

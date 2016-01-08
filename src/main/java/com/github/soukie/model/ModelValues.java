@@ -24,18 +24,24 @@ public class ModelValues {
     public static final String DAC_SUBJECT_TABLE_CREATE_SQL = "create table +" +
             DAC_SUBJECT_TABLE_NAME +
             "(" +
-            "sId int not null primary key," +
-            "sName varchar(255) not null ," +
-            "sPassword varchar(255) not null," +
-            "subjectInfo varchar(255)" +
+            "id int not null primary key," +
+            "name varchar(255) not null ," +
+            "password varchar(255) not null," +
+            "info varchar(255)," +
+            "createdTime long," +
+            "lastUpdateTime" +
             ");";
+
     public static final String DAC_OBJECT_TABLE_CREATE_SQL = "create table " +
             DAC_OBJECT_TABLE_NAME +
             "(" +
-            "oId int not null primary key," +
-            "oName varchar(255) not null ," +
-            "objectInfo varchar(255) not null," +
-            "createSubjectId int" +
+            "id int not null primary key," +
+            "name varchar(255) not null ," +
+            "info varchar(255) not null," +
+            "createdSubjectId int not null," +
+            "createdSubjectName varchar(255) not null," +
+            "createdTime long not null," +
+            "lastUpdateTime long not null," +
             "executable boolean" +
             ");";
 

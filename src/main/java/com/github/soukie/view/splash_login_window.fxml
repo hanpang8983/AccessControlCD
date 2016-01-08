@@ -34,24 +34,24 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             </rowConstraints>
             <children>
-                <ImageView fx:id="user_imageView" fitHeight="40.0" fitWidth="40.0" nodeOrientation="RIGHT_TO_LEFT" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                <ImageView fx:id="userImageView" fitHeight="40.0" fitWidth="40.0" nodeOrientation="RIGHT_TO_LEFT" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
                     <image>
                         <Image url="@../../../../../../../res/image/login_user.png" />
                     </image>
                 </ImageView>
-                <ImageView fx:id="pass_imageView" fitHeight="40.0" fitWidth="40.0" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+                <ImageView fx:id="passImageView" fitHeight="40.0" fitWidth="40.0" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
                     <image>
                         <Image url="@../../../../../../../res/image/login_pass.png" />
                     </image>
                 </ImageView>
-                <TextField fx:id="user_name_testFiled" prefHeight="14.0" prefWidth="167.0" promptText="username" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                <PasswordField fx:id="user_passwordFiled" prefHeight="15.0" prefWidth="167.0" promptText="password" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <Button fx:id="login_button" mnemonicParsing="false" style="-fx-background-color: #00000000;" text="Login" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                <TextField fx:id="userNameTestFiled" prefHeight="14.0" prefWidth="167.0" promptText="username" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <PasswordField fx:id="userPasswordFiled" prefHeight="15.0" prefWidth="167.0" promptText="password" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <Button fx:id="loginButton" mnemonicParsing="false" style="-fx-background-color: #00000000;" text="Login"  textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1">
                     <font>
                         <Font name="System Bold" size="15.0" />
                     </font>
                 </Button>
-                <Button fx:id="forget_pass_button" alignment="BOTTOM_LEFT" layoutX="344.0" layoutY="55.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="166.0" style="-fx-background-color: #00000000;" text="forget password?" textAlignment="CENTER" textFill="#1d7828" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                <Button fx:id="forgetPassButton" alignment="BOTTOM_LEFT" layoutX="344.0" layoutY="55.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="166.0" style="-fx-background-color: #00000000;" text="forget password?" textAlignment="CENTER" textFill="#1d7828" GridPane.columnIndex="2" GridPane.rowIndex="2" />
             </children>
         </GridPane>
         <GridPane GridPane.rowIndex="2">

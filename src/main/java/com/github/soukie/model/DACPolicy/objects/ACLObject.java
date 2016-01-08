@@ -1,78 +1,87 @@
 package com.github.soukie.model.DACPolicy.objects;
 
+import java.util.Date;
+
 /**
  * The ACL Object class contains all of a object' properties.
  * Created by qiyiy on 2016/1/5.
  */
 public class ACLObject {
-    private int oId;
-    private String oName;
-    private String objectInfo;
-    private String createSubjectId;
+    private int id;
+    private String name;
+    private String info;
+    private int createdSubjectId;
+    private String createdSubjectName;
+    private long createTime;
+    private long lastUpdateTime;
     private boolean executable;
 
     public ACLObject() {
 
     }
 
-
-    public ACLObject(int oId, String oName, String objectInfo, String createSubjectId, boolean executable) {
-        this.oId = oId;
-        this.oName = oName;
-        this.objectInfo = objectInfo;
-        this.createSubjectId = createSubjectId;
+    public ACLObject(boolean executable,
+                     int id, String name,
+                     int createdSubjectId,
+                     String createdSubjectName,
+                     long createTime) {
         this.executable = executable;
+        this.id = id;
+        this.name = name;
+        this.createdSubjectId = createdSubjectId;
+        this.createdSubjectName = createdSubjectName;
+        this.createTime = createTime;
+        this.lastUpdateTime = createTime;
+        updateInfo();;
     }
 
-    public int getoId() {
-        return oId;
+    public int getId() {
+        return id;
     }
 
-    public String getoName() {
-        return oName;
+    public String getName() {
+        return name;
     }
 
-    public String getObjectInfo() {
-        return objectInfo;
+    public String getInfo() {
+        return info;
     }
 
-    public String getCreateSubjectId() {
-        return createSubjectId;
+    public int getCreatedSubjectId() {
+        return createdSubjectId;
+    }
+
+    public String getCreatedSubjectName() {
+        return createdSubjectName;
+    }
+
+    public long getCreateTime() {
+        return createTime;
+    }
+
+    public long getLastUpdateTime() {
+        return lastUpdateTime;
     }
 
     public boolean isExecutable() {
         return executable;
     }
 
-    public void setCreateSubjectId(String createSubjectId) {
-        this.createSubjectId = createSubjectId;
+    public void setName(String name, long lastUpdateTime) {
+        this.name = name;
+        this.lastUpdateTime = lastUpdateTime;
+        updateInfo();
     }
 
-    public void setoId(int oId) {
-        this.oId = oId;
-    }
 
-    public void setObjectInfo(String objectInfo) {
-        this.objectInfo = objectInfo;
-    }
-
-    public void setoName(String oName) {
-        this.oName = oName;
-    }
-
-    public void setExecutable(boolean executable) {
+    public void setExecutable(boolean executable, long lastUpdateTime) {
         this.executable = executable;
+        this.lastUpdateTime = lastUpdateTime;
+        updateInfo();
     }
 
-    public void changeObjectName(String newName) {
-        this.oName = newName;
-    }
-
-    public void changeObjectInfo(String newObjectInfo) {
-        this.objectInfo = newObjectInfo;
-    }
-
-    public void changeObjectExecuteMod(Boolean newExecutableMod) {
-        this.executable = newExecutableMod;
+    private void updateInfo() {
+        this.info = "Object id:" + id + " Object name:" + name + " created by:" + createdSubjectId +
+                "(" + createdSubjectName + ")" + " at " + new Date(createTime);
     }
 }
