@@ -7,32 +7,31 @@ import java.util.Date;
  * Created by qiyiy on 2016/1/5.
  */
 public class ACLObject {
-    private int id;
+    private final int id;
     private String name;
     private String info;
-    private int createdSubjectId;
+    private final int createdSubjectId;
     private String createdSubjectName;
-    private long createTime;
+    private final long createdTime;
     private long lastUpdateTime;
     private boolean executable;
 
-    public ACLObject() {
 
-    }
-
-    public ACLObject(boolean executable,
-                     int id, String name,
+    public ACLObject(int id,
+                     String name,
                      int createdSubjectId,
                      String createdSubjectName,
-                     long createTime) {
+                     long createTime,
+                     boolean executable) {
         this.executable = executable;
         this.id = id;
         this.name = name;
         this.createdSubjectId = createdSubjectId;
         this.createdSubjectName = createdSubjectName;
-        this.createTime = createTime;
+        this.createdTime = createTime;
         this.lastUpdateTime = createTime;
-        updateInfo();;
+        updateInfo();
+        ;
     }
 
     public int getId() {
@@ -56,7 +55,7 @@ public class ACLObject {
     }
 
     public long getCreateTime() {
-        return createTime;
+        return createdTime;
     }
 
     public long getLastUpdateTime() {
@@ -82,6 +81,6 @@ public class ACLObject {
 
     private void updateInfo() {
         this.info = "Object id:" + id + " Object name:" + name + " created by:" + createdSubjectId +
-                "(" + createdSubjectName + ")" + " at " + new Date(createTime);
+                "(" + createdSubjectName + ")" + " at " + new Date(createdTime);
     }
 }

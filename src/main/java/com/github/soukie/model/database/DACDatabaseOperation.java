@@ -142,14 +142,18 @@ public class DACDatabaseOperation {
     public int addSubject(int id,
                           String name,
                           String password,
-                          String info) {
+                          String info,
+                          long createdTime,
+                          long lastUpdateTime) {
         String addSubjectRecordSql = "insert into " +
                 ModelValues.DAC_SUBJECT_TABLE_NAME +
-                "(id,name,password,info) values('" +
+                "(id,name,password,info,createdTime,lastUpdateTimme) values('" +
                 id + "','" +
                 name + "','" +
                 password + "','" +
-                info + "');";
+                info + "','" +
+                createdTime + "','" +
+                lastUpdateTime + "');";
 
         try (
                 Statement statement = connection.createStatement();
@@ -182,7 +186,8 @@ public class DACDatabaseOperation {
         String deleteSubjectSql = "delete from +" + ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";";
         try (
                 Statement statement = connection.createStatement();
-                ResultSet checkResultSet = statement.executeQuery("select * from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";")
+                ResultSet checkResultSet = statement.executeQuery("select * from " +
+                        ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";")
         ) {
             //Check fi the table has the record.
             if (!checkResultSet.next()) {
@@ -206,15 +211,17 @@ public class DACDatabaseOperation {
      * @param info: subject's information
      * @return 0: operated failed; 1: operated succeed 2: there is no the record as id = id in the table
      */
-    public int modifySubject(int id, String name, String password, String info) {
+    public int modifySubject(int id, String name, String password, String info, long lastUpdateTime) {
         String modifySubjectSql = "update " + ModelValues.DAC_SUBJECT_TABLE_NAME + " set " +
                 "name=" + name +
                 ",password=" + password +
                 ",info=" + info +
+                ",lastUpdateTime=" + lastUpdateTime +
                 " where id=" + id + ";";
         try (
                 Statement statement = connection.createStatement();
-                ResultSet checkResultSet = statement.executeQuery("select * from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";")
+                ResultSet checkResultSet = statement.executeQuery("select * from " +
+                        ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";")
         ) {
             //Check if there is the capability record in the table.
             if (!checkResultSet.next()) {
@@ -247,8 +254,10 @@ public class DACDatabaseOperation {
                 return new ACLSubject(id,
                         resultSet.getString(2),
                         resultSet.getString(3),
-                        resultSet.getString(4));
+                        resultSet.getLong(5),
+                        resultSet.getLong(6));
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -271,18 +280,19 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                resultACLSubjectArrayList.add(new ACLSubject(resultSet.getInt(1),
-                        resultSet.getString(2),
-                        resultSet.getString(3),
-                        resultSet.getString(4)));
+                resultACLSubjectArrayList.add(new ACLSubject(resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("password"),
+                        resultSet.getLong("createTime"),
+                        resultSet.getLong("lastUpdateTime")));
                 while (resultSet.next()) {
-                    resultACLSubjectArrayList.add(new ACLSubject(resultSet.getInt(1),
-                            resultSet.getString(2),
-                            resultSet.getString(3),
-                            resultSet.getString(4)));
+                    resultACLSubjectArrayList.add(new ACLSubject(resultSet.getInt("id"),
+                            resultSet.getString("name"),
+                            resultSet.getString("password"),
+                            resultSet.getLong("createTime"),
+                            resultSet.getLong("lastUpdateTime")));
                 }
                 return resultACLSubjectArrayList;
-
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -296,21 +306,26 @@ public class DACDatabaseOperation {
      * @param id:             object's id
      * @param name:           object's name
      * @param info:      object's information
-     * @param createSubjectId: id of the subject that created the object
+     * @param createdSubjectId: id of the subject that created the object
      * @return 0: operated failed; 1: operated succeed
      */
     public int addObject(int id,
                          String name,
                          String info,
-                         int createSubjectId,
+                         int createdSubjectId,
+                         String createdSubjectName,
+                         long createdTime,
                          boolean executable) {
         String addObjectRecordSql = "insert into " +
                 ModelValues.DAC_OBJECT_TABLE_NAME +
-                "(id,name,info,createSubjectId,executeable) values('" +
+                "(id,name,info,createdSubjectId,createdSubjectName,createTime,lastUpdateTime,executeable) values('" +
                 id + "','" +
                 name + "','" +
                 info + "','" +
-                createSubjectId + "','" +
+                createdSubjectId + "','" +
+                createdSubjectName + "','" +
+                createdTime + "','" +
+                createdTime + "','" +
                 executable + "');";
 
         try (
@@ -366,14 +381,18 @@ public class DACDatabaseOperation {
      * @param id:             object's id
      * @param name:           object's name
      * @param info:      object's information
-     * @param createSubjectId: the id of subject that created the object
+     * @param lastUpdateTime: the last update time
      * @return 0: operated failed; 1: operated succeed; 2: there is no the record as id = id int the table
      */
-    public int modifyObject(int id, String name, String info, int createSubjectId, boolean executable) {
+    public int modifyObject(int id,
+                            String name,
+                            String info,
+                            long lastUpdateTime,
+                            boolean executable) {
         String modifyObjectSql = "update " + ModelValues.DAC_OBJECT_TABLE_NAME + " set " +
                 "name=" + name +
                 ",info=" + info +
-                ",createSubjectId=" + createSubjectId +
+                ",lastUpdateTime=" + lastUpdateTime +
                 ",executeable=" + executable +
                 " where id=" + id + ";";
         try (
@@ -411,9 +430,10 @@ public class DACDatabaseOperation {
                 return null;
             } else {
                 return new ACLObject(id,
-                        resultSet.getString(2),
-                        resultSet.getString(3),
-                        resultSet.getString(4),
+                        resultSet.getString("name"),
+                        resultSet.getInt("createdSubjectId"),
+                        resultSet.getString("createdSubjectName"),
+                        resultSet.getLong("createTime"),
                         resultSet.getBoolean(5));
             }
         } catch (SQLException e) {
@@ -437,16 +457,18 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                resultQueryAllObjects.add(new ACLObject(resultSet.getInt(1),
-                        resultSet.getString(2),
-                        resultSet.getString(3),
-                        resultSet.getString(4),
+                resultQueryAllObjects.add(new ACLObject(resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getInt("createdSubjectId"),
+                        resultSet.getString("createdSubjectName"),
+                        resultSet.getLong("createTime"),
                         resultSet.getBoolean(5)));
                 while (resultSet.next()) {
-                    resultQueryAllObjects.add(new ACLObject(resultSet.getInt(1),
-                            resultSet.getString(2),
-                            resultSet.getString(3),
-                            resultSet.getString(4),
+                    resultQueryAllObjects.add(new ACLObject(resultSet.getInt("id"),
+                            resultSet.getString("name"),
+                            resultSet.getInt("createdSubjectId"),
+                            resultSet.getString("createdSubjectName"),
+                            resultSet.getLong("createTime"),
                             resultSet.getBoolean(5)));
                 }
                 return resultQueryAllObjects;
@@ -478,11 +500,14 @@ public class DACDatabaseOperation {
                              int subjectId,
                              String subjectName,
                              String capabilityType,
+                             long createdTime,
+                             long lastUpdateTime,
                              String capabilityString,
                              String capabilityInfo) {
         String addCapabilitySql = "insert into " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
-                "(capabilityId,objectId,objectName,gratedSubjectId,gratedSubjectName,subjectId,subjectName,capabilityType,capabilityString,capabilityInfo) values(" +
+                "(capabilityId,objectId,objectName,gratedSubjectId,gratedSubjectName,subjectId,subjectName," +
+                "capabilityType,createdTime,lastUpdateTime,capabilityString,capabilityInfo) values(" +
                 "'" + capabilityId + "'," +
                 "'" + objectId + "'," +
                 "'" + objectName + "'," +
@@ -491,6 +516,8 @@ public class DACDatabaseOperation {
                 "'" + subjectId + "'," +
                 "'" + subjectName + "'," +
                 "'" + capabilityType + "'," +
+                "'" + createdTime + "'," +
+                "'" + lastUpdateTime + "'," +
                 "'" + capabilityString + "'," +
                 "'" + capabilityInfo + "');";
         try (
@@ -516,10 +543,12 @@ public class DACDatabaseOperation {
      * @return 0: operated failed; 1: operated succeed; 2: there is no record as id = capabilityId in table.
      */
     public int deleteCapability(int capabilityId) {
-        String deleteCapabilitySql = "delete from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME + " where capabilityId=" + capabilityId + ";";
+        String deleteCapabilitySql = "delete from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+                " where capabilityId=" + capabilityId + ";";
         try (
                 Statement statement = connection.createStatement();
-                ResultSet checkResultSet = statement.executeQuery("select * from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME + " where capabilityId=" + capabilityId + ";")
+                ResultSet checkResultSet = statement.executeQuery("select * from " +
+                        ModelValues.DAC_AL_CAPABILITY_TABLE_NAME + " where capabilityId=" + capabilityId + ";")
         ) {
             //Check if the table has the record.
             if (checkResultSet.next()) {
@@ -534,14 +563,74 @@ public class DACDatabaseOperation {
     }
 
     /**
+     * The method to delete capabilities by granted subject's id
+     * @param grantedSubjectId: granted subject id
+     * @return 0: failed; >0: succeed
+     */
+    public int deleteCapbilityByGrantedSubjectId(int grantedSubjectId) {
+        String deleteCapabilityByGrantedSubjectIdSql = "delete from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+                " where grantedSubjectId=" + grantedSubjectId + ";";
+        try (
+                Statement statement = connection.createStatement()
+                ) {
+            return statement.executeUpdate(deleteCapabilityByGrantedSubjectIdSql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * The method to delete capabilities by subject's id.
+     * @param subjectId: subject id
+     * @return 0: failed; >0:succeed
+     */
+    public int deleteCapabilityBySubjectId(int subjectId) {
+        String deleteCapabilityBySubjectIdSql = "delete from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+                " where subjectId=" + subjectId + ';';
+        try (
+                Statement statement = connection.createStatement()
+                ) {
+            return statement.executeUpdate(deleteCapabilityBySubjectIdSql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * The method to delete capabilities by object's id
+     * @param objectId
+     * @return
+     */
+    public int deleteCapabilityByObjectId(int objectId) {
+        String deleteCapabilityByObjectIdSql = "delete from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+                " where objectId=" + objectId + ";";
+        try (
+                Statement statement = connection.createStatement()
+                ) {
+            return statement.executeUpdate(deleteCapabilityByObjectIdSql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
      * The method to modify capability record in table.
      * @param capabilityId: capability's id
      * @param newCapabilityString: new capability string
      * @param newCapabilityInfo: new capability info
      * @return 0: operated failed; 1: operated succeed; 2: there is no capability record with id=capabilityId in the table
      */
-    public int modifyCapability(int capabilityId, String newCapabilityString, String newCapabilityInfo) {
+    public int modifyCapability(int capabilityId,
+                                String capabilityType,
+                                long lastUpdateTime,
+                                String newCapabilityString,
+                                String newCapabilityInfo) {
         String modifyCapabilitySql = "update " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME + " set " +
+                "capabilityType=" + capabilityType +
+                "lastUpdateTime=" + lastUpdateTime +
                 "capabilityString=" + newCapabilityString +
                 ",capabilityInfo=" + newCapabilityInfo + ";";
         try (
@@ -569,7 +658,7 @@ public class DACDatabaseOperation {
      * @param capabilityId: capability's id
      * @return null: queried failed; Capability: new capability of subject
      */
-    public Capability queryOneCapabilityOfSubject(int capabilityId) {
+    public Capability queryOneCapability(int capabilityId) {
         String queryOneCapabilityOfSubjectSql = "select * from " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where capabilityId=" +
@@ -582,14 +671,15 @@ public class DACDatabaseOperation {
                 return null;
             } else {
                 return new Capability(capabilityId,
-                        resultSet.getInt(2),
-                        resultSet.getString(3),
-                        resultSet.getInt(4),
-                        resultSet.getString(5),
-                        resultSet.getInt(6),
-                        resultSet.getString(7),
-                        resultSet.getString(8),
-                        resultSet.getString(9));
+                        resultSet.getInt("objectId"),
+                        resultSet.getString("objectName"),
+                        resultSet.getInt("grantedSubjectId"),
+                        resultSet.getString("grantedSubjectName"),
+                        resultSet.getInt("subjectId"),
+                        resultSet.getString("subjectName"),
+                        resultSet.getString("capabilityType"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getString("capabilityString"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -602,7 +692,7 @@ public class DACDatabaseOperation {
      * The method to query all record of capability in the table.
      * @return null: queried failed; ArrayList<Capability>: queried succeed
      */
-    public ArrayList<Capability> queryAllCapabilitiesOfSubject() {
+    public ArrayList<Capability> queryAllCapabilities() {
         String queryAllCapabilityOfSubject = "select * from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME + ";";
         ArrayList<Capability> resultCapabilityArrayList = new ArrayList<>();
         try (
@@ -612,25 +702,27 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                resultCapabilityArrayList.add(new Capability(resultSet.getInt(1),
-                        resultSet.getInt(2),
-                        resultSet.getString(3),
-                        resultSet.getInt(4),
-                        resultSet.getString(5),
-                        resultSet.getInt(6),
-                        resultSet.getString(7),
-                        resultSet.getString(8),
-                        resultSet.getString(9)));
+                resultCapabilityArrayList.add(new Capability(resultSet.getInt("capabilityId"),
+                        resultSet.getInt("objectId"),
+                        resultSet.getString("objectName"),
+                        resultSet.getInt("grantedSubjectId"),
+                        resultSet.getString("grantedSubjectName"),
+                        resultSet.getInt("subjectId"),
+                        resultSet.getString("subjectName"),
+                        resultSet.getString("capabilityType"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getString("capabilityString")));
                 while (resultSet.next()) {
-                    resultCapabilityArrayList.add(new Capability(resultSet.getInt(1),
-                            resultSet.getInt(2),
-                            resultSet.getString(3),
-                            resultSet.getInt(4),
-                            resultSet.getString(5),
-                            resultSet.getInt(6),
-                            resultSet.getString(7),
-                            resultSet.getString(8),
-                            resultSet.getString(9)));
+                    resultCapabilityArrayList.add(new Capability(resultSet.getInt("capabilityId"),
+                            resultSet.getInt("objectId"),
+                            resultSet.getString("objectName"),
+                            resultSet.getInt("grantedSubjectId"),
+                            resultSet.getString("grantedSubjectName"),
+                            resultSet.getInt("subjectId"),
+                            resultSet.getString("subjectName"),
+                            resultSet.getString("capabilityType"),
+                            resultSet.getLong("createdTime"),
+                            resultSet.getString("capabilityString")));
                 }
                 return resultCapabilityArrayList;
             }
@@ -640,7 +732,7 @@ public class DACDatabaseOperation {
         }
     }
 
-    public ArrayList<Capability> queryCapabilityOfSubjectsBySubjectId(int subjectId) {
+    public ArrayList<Capability> queryCapabilitiesBySubjectId(int subjectId) {
         String queryOneCapabilityOfSubjectSql = "select * from " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where subjectId=" + subjectId + ";";
@@ -652,25 +744,27 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                result.add(new Capability(resultSet.getInt(1),
-                        resultSet.getInt(2),
-                        resultSet.getString(3),
-                        resultSet.getInt(4),
-                        resultSet.getString(5),
-                        resultSet.getInt(6),
-                        resultSet.getString(7),
-                        resultSet.getString(8),
-                        resultSet.getString(9)));
+                result.add(new Capability(resultSet.getInt("capabilityId"),
+                        resultSet.getInt("objectId"),
+                        resultSet.getString("objectName"),
+                        resultSet.getInt("grantedSubjectId"),
+                        resultSet.getString("grantedSubjectName"),
+                        resultSet.getInt("subjectId"),
+                        resultSet.getString("subjectName"),
+                        resultSet.getString("capabilityType"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getString("capabilityString")));
                 while (resultSet.next()) {
-                    result.add(new Capability(resultSet.getInt(1),
-                            resultSet.getInt(2),
-                            resultSet.getString(3),
-                            resultSet.getInt(4),
-                            resultSet.getString(5),
-                            resultSet.getInt(6),
-                            resultSet.getString(7),
-                            resultSet.getString(8),
-                            resultSet.getString(9)));
+                    result.add(new Capability(resultSet.getInt("capabilityId"),
+                            resultSet.getInt("objectId"),
+                            resultSet.getString("objectName"),
+                            resultSet.getInt("grantedSubjectId"),
+                            resultSet.getString("grantedSubjectName"),
+                            resultSet.getInt("subjectId"),
+                            resultSet.getString("subjectName"),
+                            resultSet.getString("capabilityType"),
+                            resultSet.getLong("createdTime"),
+                            resultSet.getString("capabilityString")));
                 }
                 return result;
             }
@@ -680,7 +774,7 @@ public class DACDatabaseOperation {
         }
     }
 
-    public ArrayList<Capability> queryCapabilityOfSubjectsByObjectId(int objectId) {
+    public ArrayList<Capability> queryCapabilitiesByObjectId(int objectId) {
         String queryOneCapabilityOfSubjectSql = "select * from " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where objectId=" + objectId + ";";
@@ -692,25 +786,27 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                result.add(new Capability(resultSet.getInt(1),
-                        resultSet.getInt(2),
-                        resultSet.getString(3),
-                        resultSet.getInt(4),
-                        resultSet.getString(5),
-                        resultSet.getInt(6),
-                        resultSet.getString(7),
-                        resultSet.getString(8),
-                        resultSet.getString(9)));
+                result.add(new Capability(resultSet.getInt("capabilityId"),
+                        resultSet.getInt("objectId"),
+                        resultSet.getString("objectName"),
+                        resultSet.getInt("grantedSubjectId"),
+                        resultSet.getString("grantedSubjectName"),
+                        resultSet.getInt("subjectId"),
+                        resultSet.getString("subjectName"),
+                        resultSet.getString("capabilityType"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getString("capabilityString")));
                 while (resultSet.next()) {
-                    result.add(new Capability(resultSet.getInt(1),
-                            resultSet.getInt(2),
-                            resultSet.getString(3),
-                            resultSet.getInt(4),
-                            resultSet.getString(5),
-                            resultSet.getInt(6),
-                            resultSet.getString(7),
-                            resultSet.getString(8),
-                            resultSet.getString(9)));
+                    result.add(new Capability(resultSet.getInt("capabilityId"),
+                            resultSet.getInt("objectId"),
+                            resultSet.getString("objectName"),
+                            resultSet.getInt("grantedSubjectId"),
+                            resultSet.getString("grantedSubjectName"),
+                            resultSet.getInt("subjectId"),
+                            resultSet.getString("subjectName"),
+                            resultSet.getString("capabilityType"),
+                            resultSet.getLong("createdTime"),
+                            resultSet.getString("capabilityString")));
                 }
                 return result;
             }
@@ -719,7 +815,7 @@ public class DACDatabaseOperation {
             return null;
         }
     }
-    public ArrayList<Capability> queryCapabilityOfSubjectsByGrantedSubjectId(int grantedSubjectId) {
+    public ArrayList<Capability> queryCapabilitiesByGrantedSubjectId(int grantedSubjectId) {
         String queryOneCapabilityOfSubjectSql = "select * from " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where grantedSubjectId=" + grantedSubjectId + ";";
@@ -731,25 +827,27 @@ public class DACDatabaseOperation {
             if (!resultSet.next()) {
                 return null;
             } else {
-                result.add(new Capability(resultSet.getInt(1),
-                        resultSet.getInt(2),
-                        resultSet.getString(3),
-                        resultSet.getInt(4),
-                        resultSet.getString(5),
-                        resultSet.getInt(6),
-                        resultSet.getString(7),
-                        resultSet.getString(8),
-                        resultSet.getString(9)));
+                result.add(new Capability(resultSet.getInt("capabilityId"),
+                        resultSet.getInt("objectId"),
+                        resultSet.getString("objectName"),
+                        resultSet.getInt("grantedSubjectId"),
+                        resultSet.getString("grantedSubjectName"),
+                        resultSet.getInt("subjectId"),
+                        resultSet.getString("subjectName"),
+                        resultSet.getString("capabilityType"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getString("capabilityString")));
                 while (resultSet.next()) {
-                    result.add(new Capability(resultSet.getInt(1),
-                            resultSet.getInt(2),
-                            resultSet.getString(3),
-                            resultSet.getInt(4),
-                            resultSet.getString(5),
-                            resultSet.getInt(6),
-                            resultSet.getString(7),
-                            resultSet.getString(8),
-                            resultSet.getString(9)));
+                    result.add(new Capability(resultSet.getInt("capabilityId"),
+                            resultSet.getInt("objectId"),
+                            resultSet.getString("objectName"),
+                            resultSet.getInt("grantedSubjectId"),
+                            resultSet.getString("grantedSubjectName"),
+                            resultSet.getInt("subjectId"),
+                            resultSet.getString("subjectName"),
+                            resultSet.getString("capabilityType"),
+                            resultSet.getLong("createdTime"),
+                            resultSet.getString("capabilityString")));
                 }
                 return result;
             }
@@ -759,52 +857,127 @@ public class DACDatabaseOperation {
         }
     }
 
-    /*public ArrayList<Capability> queryCapabilitiesOfSubjectByIds(int id, int idMod) {
-        String querySql = "";
-        switch (idMod) {
-            case DACDatabaseOperation.QUERY_CAPABILITIES_MOD_SUBJECT_ID:
-                querySql = "select * from " +
-                        ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
-                        " where subjectId=" + id + ";";
-                break;
-            case DACDatabaseOperation.QUERY_CAPABILITIES_MOD_OBJECT_ID:
-                querySql = "select * from " +
-                        ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
-                        " where objectId=" + id + ";";
-                break;
-            case DACDatabaseOperation.QUERY_CAPABILITIES_MOD_GRANTED_SUBJECT_ID:
-                querySql="select * from " +
-                        ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
-                        " where grantedSubjectId=" + id + ";";
-                break;
-            default:
-                querySql = "select * from " +
-                        ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
-                        " where capabilityId=" + id + ";";
-                break;
+    public ArrayList<Capability> queryCapabilitiesBySubjectIdAndObjectId(int subjectId, int objectId) {
+        String queryCapabilitiesBySubjectIdAndObjectIdSql = "select from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+                " where subjectId=" + subjectId + " and objectId=" + objectId + ";";
+        ArrayList<Capability> result = new ArrayList<>();
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(queryCapabilitiesBySubjectIdAndObjectIdSql)
+        ) {
+            if (!resultSet.next()) {
+                return null;
+            } else {
+                result.add(new Capability(resultSet.getInt("capabilityId"),
+                        resultSet.getInt("objectId"),
+                        resultSet.getString("objectName"),
+                        resultSet.getInt("grantedSubjectId"),
+                        resultSet.getString("grantedSubjectName"),
+                        resultSet.getInt("subjectId"),
+                        resultSet.getString("subjectName"),
+                        resultSet.getString("capabilityType"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getString("capabilityString")));
+                while (resultSet.next()) {
+                    result.add(new Capability(resultSet.getInt("capabilityId"),
+                            resultSet.getInt("objectId"),
+                            resultSet.getString("objectName"),
+                            resultSet.getInt("grantedSubjectId"),
+                            resultSet.getString("grantedSubjectName"),
+                            resultSet.getInt("subjectId"),
+                            resultSet.getString("subjectName"),
+                            resultSet.getString("capabilityType"),
+                            resultSet.getLong("createdTime"),
+                            resultSet.getString("capabilityString")));
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
+    }
 
-    }*/
-    /*
-     *
-     * @param id
-     * @param connection
-     * @param operationSql
-     * @param operationMod int 0: add a subject;
-     *                     int 1: delete a subject;
-     *                     int 2: modify a subject;
-     * @return public int operateSubjectRecords(@NotNull String id, @NotNull Connection connection, @NotNull String operationSql, int operationMod) {
-    try (
-    Statement statement = connection.createStatement();
-    ResultSet checkResult = statement.executeQuery("select * from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";")
-    ) {
-    //Check is the record exist.
-    if (!checkResult.next()) {
-    return
+    public ArrayList<Capability> queryCapabilitiesByGrantedSubjectIdAndObjectId(int grantedSubjectId, int objectId) {
+        String queryCapabilitiesBySubjectIdAndObjectIdSql = "select from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+                " where greantedSubjectId=" + grantedSubjectId + " and objectId=" + objectId + ";";
+        ArrayList<Capability> result = new ArrayList<>();
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(queryCapabilitiesBySubjectIdAndObjectIdSql)
+        ) {
+            if (!resultSet.next()) {
+                return null;
+            } else {
+                result.add(new Capability(resultSet.getInt("capabilityId"),
+                        resultSet.getInt("objectId"),
+                        resultSet.getString("objectName"),
+                        resultSet.getInt("grantedSubjectId"),
+                        resultSet.getString("grantedSubjectName"),
+                        resultSet.getInt("subjectId"),
+                        resultSet.getString("subjectName"),
+                        resultSet.getString("capabilityType"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getString("capabilityString")));
+                while (resultSet.next()) {
+                    result.add(new Capability(resultSet.getInt("capabilityId"),
+                            resultSet.getInt("objectId"),
+                            resultSet.getString("objectName"),
+                            resultSet.getInt("grantedSubjectId"),
+                            resultSet.getString("grantedSubjectName"),
+                            resultSet.getInt("subjectId"),
+                            resultSet.getString("subjectName"),
+                            resultSet.getString("capabilityType"),
+                            resultSet.getLong("createdTime"),
+                            resultSet.getString("capabilityString")));
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-    } catch (SQLException e) {
-    e.printStackTrace();
+
+    public ArrayList<Capability> queryCapabilitiesByGrantedSubjectIdAndSubjectID(int grantedSubjectId, int subjectId) {
+        String queryCapabilitiesBySubjectIdAndObjectIdSql = "select from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+                " where grantedSubjectId=" + grantedSubjectId + " and subjectId=" + subjectId + ";";
+        ArrayList<Capability> result = new ArrayList<>();
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(queryCapabilitiesBySubjectIdAndObjectIdSql)
+        ) {
+            if (!resultSet.next()) {
+                return null;
+            } else {
+                result.add(new Capability(resultSet.getInt("capabilityId"),
+                        resultSet.getInt("objectId"),
+                        resultSet.getString("objectName"),
+                        resultSet.getInt("grantedSubjectId"),
+                        resultSet.getString("grantedSubjectName"),
+                        resultSet.getInt("subjectId"),
+                        resultSet.getString("subjectName"),
+                        resultSet.getString("capabilityType"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getString("capabilityString")));
+                while (resultSet.next()) {
+                    result.add(new Capability(resultSet.getInt("capabilityId"),
+                            resultSet.getInt("objectId"),
+                            resultSet.getString("objectName"),
+                            resultSet.getInt("grantedSubjectId"),
+                            resultSet.getString("grantedSubjectName"),
+                            resultSet.getInt("subjectId"),
+                            resultSet.getString("subjectName"),
+                            resultSet.getString("capabilityType"),
+                            resultSet.getLong("createdTime"),
+                            resultSet.getString("capabilityString")));
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-    }*/
 
 }

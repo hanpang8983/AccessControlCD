@@ -56,6 +56,8 @@ public class ModelValues {
             "subjectId int not null," +
             "subjectName varchar(255) not null," +
             "capabilityType varchar(255) not null," +
+            "createdTime long not null," +
+            "lastUpdateTime long," +
             "capabilityString varchar(255) not null," +
             "capabilityInfo varchar(255)" +
             ");";

@@ -1,6 +1,6 @@
 package com.github.soukie.model.DACPolicy.objects;
 
-import com.github.soukie.model.DACPolicy.values.CapabilityList;
+import com.github.soukie.model.DACPolicy.CapabilityList;
 import com.github.soukie.model.ModelValues;
 
 /**
@@ -8,15 +8,15 @@ import com.github.soukie.model.ModelValues;
  * Created by qiyiy on 2016/1/5.
  */
 public class Capability {
-    private int capabilityId;
-    private int objectId;
+    private final int capabilityId;
+    private final int objectId;
     private String objectName;
-    private int grantedSubjectId;
+    private final int grantedSubjectId;
     private String grantedSubjectName;
-    private int subjectId;
+    private final int subjectId;
     private String subjectName;
     private String capabilityType;
-    private long createdTime;
+    private final long createdTime;
     private long lastUpdateTime;
     private String capabilityString;
     private CapabilityList capabilityList;
@@ -25,11 +25,6 @@ public class Capability {
     public static final String CAPABILITY_TYPE_CENTRALIZED_ACL = ModelValues.CENTRALIZED_ACL;
     public static final String CAPABILITY_TYPE_DISTRIBUTED_ACL = ModelValues.DISTRIBUTED_ACL;
     public static final String CAPABILITY_TYPE_LIMITED_DISTRIBUTED_ACL = ModelValues.LIMITED_DISTRIBUTED_ACL;
-
-    public Capability() {
-
-    }
-
 
     public Capability(int capabilityId,
                       int objectId,

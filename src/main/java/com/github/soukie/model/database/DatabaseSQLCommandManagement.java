@@ -50,9 +50,17 @@ public class DatabaseSQLCommandManagement {
         return "show tables like " + "'" + tableName + "'" + ";";
     }
 
-    public static String insertOneRecord(String tableName,Object object) {
+    /*public static String insertOneDACSubjectRecord(String tableName, ACLSubject subject) {
 
     }
+
+    public static String deleteOneDACSubjectRecord(String tableName, int subjectId) {
+
+    }
+
+    public static String modifyOneDACSubjectRecord(String tableName, int subjectId) {
+
+    }*/
 
     /**
      * The method to return a sql command to delete one record in table named tableName.

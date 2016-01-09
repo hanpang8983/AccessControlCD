@@ -1,4 +1,4 @@
-package com.github.soukie.model.DACPolicy.values;
+package com.github.soukie.model.DACPolicy;
 
 /**The Capability list class.
  * Created by qiyiy on 2016/1/5.

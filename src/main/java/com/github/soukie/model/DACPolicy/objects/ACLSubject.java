@@ -7,23 +7,29 @@ import java.util.Date;
  * Created by qiyiy on 2016/1/5.
  */
 public class ACLSubject {
-    private int id;
+    private final int id;
     private String name;
     private String password;
     private String info;
-    private long createdTime;
+    private final long createdTime;
     private long lastUpdateTime;
 
-    public ACLSubject() {
 
-    }
-
-
-    public ACLSubject(int id, String name, long createdTime, String password ) {
+    public ACLSubject(int id, String name, String password ,long createdTime, long lastUpdateTime) {
         this.createdTime = createdTime;
         this.password = password;
         this.name = name;
         this.id = id;
+        this.lastUpdateTime = lastUpdateTime;
+        updateInfo();
+    }
+
+    public ACLSubject(int id, String name, String password, long createdTime) {
+        this.id = id;
+        this.name = name;
+        this.password = password;
+        this.createdTime = createdTime;
+        this.lastUpdateTime = createdTime;
         updateInfo();
     }
 

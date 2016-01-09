@@ -133,6 +133,8 @@
                         <TreeTableColumn editable="false" prefWidth="180.0" sortable="false" text="GrantedSubjectName" />
                         <TreeTableColumn editable="false" prefWidth="150.0" sortable="false" text="CapabilityString" />
                         <TreeTableColumn editable="false" prefWidth="200.0" sortable="false" text="CapabilityInfo" />
+                        <TreeTableColumn editable="false" prefWidth="200.0" sortable="false" text="CreatedTime" />
+                        <TreeTableColumn editable="false" prefWidth="200.0" sortable="false" text="LastUpdatedTime" />
                     </columns>
                   </TreeTableView>
                </content></ScrollPane>
@@ -180,9 +182,9 @@
             <ScrollPane prefHeight="204.0" prefWidth="265.0" />
          </items>
       </SplitPane>
-      <ScrollPane fx:id="runningLogScrollPane">
+      <ScrollPane fx:id="runningLogScrollPane" prefHeight="100.0" prefWidth="1200.0">
          <content>
-            <TextArea fx:id="runningLogTextArea" prefHeight="200.0" prefWidth="1136.0" />
+            <TextArea fx:id="runningLogTextArea" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="1182.0" />
          </content></ScrollPane>
    </children>
 </VBox>
