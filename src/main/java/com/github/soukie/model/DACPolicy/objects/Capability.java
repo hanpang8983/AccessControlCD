@@ -15,7 +15,6 @@ public class Capability {
     private String grantedSubjectName;
     private final int subjectId;
     private String subjectName;
-    private String capabilityType;
     private final long createdTime;
     private long lastUpdateTime;
     private String capabilityString;
@@ -33,7 +32,6 @@ public class Capability {
                       String grantedSubjectName,
                       int subjectId,
                       String subjectName,
-                      String capabilityType,
                       long createdTime,
                       String capabilityString) {
         this.capabilityId = capabilityId;
@@ -43,7 +41,6 @@ public class Capability {
         this.grantedSubjectName = grantedSubjectName;
         this.subjectId = subjectId;
         this.subjectName = subjectName;
-        this.capabilityType = capabilityType;
         this.createdTime = createdTime;
         this.lastUpdateTime = createdTime;
         this.capabilityString = capabilityString;
@@ -79,10 +76,6 @@ public class Capability {
         return subjectName;
     }
 
-    public String getCapabilityType() {
-        return capabilityType;
-    }
-
     public long getCreatedTime() {
         return createdTime;
     }
@@ -103,10 +96,6 @@ public class Capability {
         return capabilityInfo;
     }
 
-    public void setCapabilityType(String capabilityType) {
-        this.capabilityType = capabilityType;
-        updateInfo();
-    }
 
     public void setCapabilityString(String capabilityString) {
         this.capabilityString = capabilityString;
@@ -119,7 +108,7 @@ public class Capability {
     }
 
     private void updateInfo() {
-        this.capabilityInfo = capabilityType + ": " + grantedSubjectName +
+        this.capabilityInfo = grantedSubjectName +
                 " granted " + subjectName + " with " + objectName + ":" + capabilityString;
     }
 }

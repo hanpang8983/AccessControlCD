@@ -3,7 +3,6 @@ package com.github.soukie.model.DACPolicy;
 import com.github.soukie.model.DACPolicy.objects.ACLObject;
 import com.github.soukie.model.DACPolicy.objects.ACLSubject;
 import com.github.soukie.model.DACPolicy.objects.Capability;
-import com.github.soukie.model.ModelValues;
 import com.github.soukie.model.database.DACDatabaseOperation;
 import com.github.soukie.model.security.SecurityEncode;
 
@@ -84,7 +83,6 @@ public class DACManagement {
      * @return 0: created failed; >0: created succeed
      */
     public int createObject(ACLSubject subject, ACLObject object, String dacMod) {
-        String capabilityString = dacMod.equalsIgnoreCase(ModelValues.CENTRALIZED_ACL) ? "orwcd" : "orw_d";
         int addObjectResult = dacDatabaseOperation.addObject(object.getId(),
                 object.getName(),
                 object.getInfo(),
@@ -92,7 +90,7 @@ public class DACManagement {
                 subject.getName(),
                 object.getCreateTime(),
                 object.isExecutable());
-        int addCapabilityResult = createCapability(subject, subject, object, dacMod, capabilityString);
+        int addCapabilityResult = createCapability(subject, subject, object, "orwcd");
         return addCapabilityResult | addObjectResult;
     }
 
@@ -128,75 +126,89 @@ public class DACManagement {
      * @param grantSubject: subject will grant capability
      * @param subject:      subject will be granted capability
      * @param object:       subject with capability
-     * @param dacMod:       dac capability mod
-     * @return 0: created failed 1: created succeed.
+     * @return 0: created failed 1: created succeed 2:there is a black token 3: granted subject has not control of object
      */
-    public int createCapability(ACLSubject grantSubject, ACLSubject subject, ACLObject object, String dacMod, String capabilityString) {
-        int dacModInt = dacMod.equalsIgnoreCase(ModelValues.CENTRALIZED_ACL) ? 1 :
-                (dacMod.equalsIgnoreCase(ModelValues.DISTRIBUTED_ACL) ? 2 : 3);
-        if (grantSubject.getId() == object.getCreatedSubjectId()) {
-            Capability capability = new Capability(grantSubject.getId() * 1000000 + subject.getId() * 1000 + object.getId() + dacModInt,
-                    object.getId(),
-                    object.getName(),
-                    subject.getId(),
-                    subject.getName(),
-                    subject.getId(),
-                    subject.getName(),
-                    dacMod,
-                    new Date().getTime(),
-                    capabilityString);
-            return dacDatabaseOperation.addCapability(capability.getCapabilityId(),
-                    capability.getObjectId(),
-                    capability.getObjectName(),
-                    capability.getGrantedSubjectId(),
-                    capability.getGrantedSubjectName(),
-                    capability.getSubjectId(),
-                    capability.getSubjectName(),
-                    capability.getCapabilityType(),
-                    capability.getCreatedTime(),
-                    capability.getLastUpdateTime(),
-                    capability.getCapabilityString(),
-                    capability.getCapabilityInfo());
+    public int createCapability(ACLSubject grantSubject, ACLSubject subject, ACLObject object, String capabilityString) {
+        boolean ifGrantControl = capabilityString.charAt(3) == 'c';
+        if (dacDatabaseOperation.queryBlackTokenByObjectIdGrantedSubjectIdSubjectId(object.getId(),
+                grantSubject.getId(),
+                subject.getId(),
+                capabilityString).isBlackToken()) {
+            return 2;
         } else {
-            ArrayList<Capability> queryCapabilitiesBySubjectIdAndObjectId =
-                    dacDatabaseOperation.queryCapabilitiesBySubjectIdAndObjectId(grantSubject.getId(), object.getId());
-            boolean ifGrantedSubjectHaveOwnObject = false;
-            if (queryCapabilitiesBySubjectIdAndObjectId != null) {
-                for (Capability capability : queryCapabilitiesBySubjectIdAndObjectId
-                        ) {
-                    ifGrantedSubjectHaveOwnObject = capability.getCapabilityString().charAt(3) == 'c' &&
-                            capability.getCapabilityType().equalsIgnoreCase(dacMod);
-                }
-            }
-            if (ifGrantedSubjectHaveOwnObject) {
-                Capability capability = new Capability(grantSubject.getId() * 1000000 + subject.getId() * 1000 + object.getId() + dacModInt,
-                        object.getId(),
-                        object.getName(),
-                        subject.getId(),
-                        subject.getName(),
-                        subject.getId(),
-                        subject.getName(),
-                        dacMod,
-                        new Date().getTime(),
-                        capabilityString);
-                return dacDatabaseOperation.addCapability(capability.getCapabilityId(),
-                        capability.getObjectId(),
-                        capability.getObjectName(),
-                        capability.getGrantedSubjectId(),
-                        capability.getGrantedSubjectName(),
-                        capability.getSubjectId(),
-                        capability.getSubjectName(),
-                        capability.getCapabilityType(),
-                        capability.getCreatedTime(),
-                        capability.getLastUpdateTime(),
-                        capability.getCapabilityString(),
-                        capability.getCapabilityInfo());
+            if (grantSubject.getId() == object.getCreatedSubjectId()) {
+                return createCapabilityDatabaseOperation(grantSubject, subject, object, capabilityString);
+
             } else {
-                return 0;
+                ArrayList<Capability> queryCapabilitiesBySubjectIdAndObjectId =
+                        dacDatabaseOperation.queryCapabilitiesBySubjectIdAndObjectId(grantSubject.getId(), object.getId());
+                boolean ifGrantedSubjectHaveOwnObject = false;
+                if (queryCapabilitiesBySubjectIdAndObjectId != null) {
+                    for (Capability capability : queryCapabilitiesBySubjectIdAndObjectId
+                            ) {
+                        ifGrantedSubjectHaveOwnObject = capability.getCapabilityString().charAt(3) == 'c';
+                    }
+                }
+                if (ifGrantedSubjectHaveOwnObject) {
+                    return createCapabilityDatabaseOperation(grantSubject, subject, object, capabilityString);
+                } else {
+                    return 3;
+                }
+
             }
-
         }
+    }
 
+    /**
+     * The method to delete capability record according granted subject's id, subject's id, object's id and capability string.
+     * And will deleted all capabilities called capability string granted by subject.
+     * @param grantedSubjectId: granted subject's id
+     * @param subjectId: subject's id
+     * @param objectId: object's id
+     * @param capabilityString: capability string
+     * @return 0: deleted failed >0: deleted succeed
+     */
+    public int deleteCapability(int grantedSubjectId, int subjectId, int objectId, String capabilityString) {
+        int deleteCapabilityResult = dacDatabaseOperation.deleteCapabilityByGSSOCSId(grantedSubjectId,
+                subjectId,
+                objectId,
+                capabilityString);
+        dacDatabaseOperation.deleteCapbilityByGrantedSubjectId(subjectId);
+        return deleteCapabilityResult;
+    }
+
+
+
+
+
+    private int createCapabilityDatabaseOperation(ACLSubject grantedSubject,
+                                                   ACLSubject subject,
+                                                   ACLObject object,
+                                                   String capabilityString) {
+        Capability capability = new Capability(grantedSubject.getId() * 1000000 + subject.getId() * 1000 + object.getId(),
+                object.getId(),
+                object.getName(),
+                subject.getId(),
+                subject.getName(),
+                subject.getId(),
+                subject.getName(),
+                new Date().getTime(),
+                capabilityString);
+        return dacDatabaseOperation.addCapability(capability.getCapabilityId(),
+                capability.getObjectId(),
+                capability.getObjectName(),
+                capability.getGrantedSubjectId(),
+                capability.getGrantedSubjectName(),
+                capability.getSubjectId(),
+                capability.getSubjectName(),
+                capability.getCreatedTime(),
+                capability.getLastUpdateTime(),
+                capability.getCapabilityString(),
+                capability.getCapabilityInfo());
+    }
+
+    public int createBlackToken(ACLSubject grantedSubject, ACLSubject subject, ACLObject object, String capabilityString) {
+        return 0;
     }
 
 

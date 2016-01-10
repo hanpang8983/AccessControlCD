@@ -2,6 +2,7 @@ package com.github.soukie.model.database;
 
 import com.github.soukie.model.DACPolicy.objects.ACLObject;
 import com.github.soukie.model.DACPolicy.objects.ACLSubject;
+import com.github.soukie.model.DACPolicy.objects.BlackToken;
 import com.github.soukie.model.DACPolicy.objects.Capability;
 import com.github.soukie.model.ModelValues;
 import com.sun.istack.internal.NotNull;
@@ -17,20 +18,15 @@ import java.util.Properties;
  * Created by qiyiy on 2016/1/5.
  */
 public class DACDatabaseOperation {
-    private long operationTime;
-    private String DatabaseDriverPath;
-
-    private Connection connection;
-
-    public int connectionStatus;
-
     public static final int QUERY_CAPABILITIES_MOD_SUBJECT_ID = 0;
     public static final int QUERY_CAPABILITIES_MOD_OBJECT_ID = 1;
     public static final int QUERY_CAPABILITIES_MOD_GRANTED_SUBJECT_ID = 2;
     public static final int QUERY_CAPABILITIES_MOD_DEFAULT_CAPABILITY_ID = 4;
-
-
     public static final String MYSQL_DRIVER = "com.mysql.jdbc.Driver";
+    public int connectionStatus;
+    private long operationTime;
+    private String DatabaseDriverPath;
+    private Connection connection;
 
 
     public DACDatabaseOperation(long operationTime) {
@@ -57,6 +53,7 @@ public class DACDatabaseOperation {
 
     /**
      * The method to close database's connection
+     *
      * @return 0: close failed; 1: close succeed.
      */
     public int closeConnection() {
@@ -73,6 +70,7 @@ public class DACDatabaseOperation {
 
     /**
      * The method to return operation's database connection.
+     *
      * @return
      */
     public Connection getConnection() {
@@ -89,6 +87,7 @@ public class DACDatabaseOperation {
 
     /**
      * Initialize the database connection.
+     *
      * @param databasePropertiesFilePath: database properties file path.
      * @throws ClassNotFoundException
      */
@@ -109,7 +108,8 @@ public class DACDatabaseOperation {
 
     /**
      * Initialize the database connection.
-     * @param url: database connection url
+     *
+     * @param url:  database connection url
      * @param user: database user name
      * @param pass: database user pass
      * @throws ClassNotFoundException
@@ -132,10 +132,10 @@ public class DACDatabaseOperation {
     /**
      * The method to add a subject in database.
      *
-     * @param id:         subject's id
-     * @param name:       subject's name
-     * @param password:   subject's password
-     * @param info: subject's information
+     * @param id:       subject's id
+     * @param name:     subject's name
+     * @param password: subject's password
+     * @param info:     subject's information
      * @return return int 0: add subject error 1: add one subject succeed
      */
 
@@ -205,10 +205,10 @@ public class DACDatabaseOperation {
     /**
      * The method to modify a subject' values.
      *
-     * @param id:         subject's id
-     * @param name:       subject's name
-     * @param password:   subject's password
-     * @param info: subject's information
+     * @param id:       subject's id
+     * @param name:     subject's name
+     * @param password: subject's password
+     * @param info:     subject's information
      * @return 0: operated failed; 1: operated succeed 2: there is no the record as id = id in the table
      */
     public int modifySubject(int id, String name, String password, String info, long lastUpdateTime) {
@@ -303,9 +303,9 @@ public class DACDatabaseOperation {
     /**
      * The method to add a object.
      *
-     * @param id:             object's id
-     * @param name:           object's name
-     * @param info:      object's information
+     * @param id:               object's id
+     * @param name:             object's name
+     * @param info:             object's information
      * @param createdSubjectId: id of the subject that created the object
      * @return 0: operated failed; 1: operated succeed
      */
@@ -380,7 +380,7 @@ public class DACDatabaseOperation {
      *
      * @param id:             object's id
      * @param name:           object's name
-     * @param info:      object's information
+     * @param info:           object's information
      * @param lastUpdateTime: the last update time
      * @return 0: operated failed; 1: operated succeed; 2: there is no the record as id = id int the table
      */
@@ -487,7 +487,6 @@ public class DACDatabaseOperation {
      * @param objectName:         object's name
      * @param grantedSubjectId:   granted subject's id
      * @param grantedSubjectName: grated subject's name
-     * @param capabilityType:     capability's type
      * @param capabilityString:   capability's string
      * @param capabilityInfo:     capability's information
      * @return 0: operated failed; 1: operated succeed
@@ -499,7 +498,6 @@ public class DACDatabaseOperation {
                              String grantedSubjectName,
                              int subjectId,
                              String subjectName,
-                             String capabilityType,
                              long createdTime,
                              long lastUpdateTime,
                              String capabilityString,
@@ -507,7 +505,7 @@ public class DACDatabaseOperation {
         String addCapabilitySql = "insert into " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 "(capabilityId,objectId,objectName,gratedSubjectId,gratedSubjectName,subjectId,subjectName," +
-                "capabilityType,createdTime,lastUpdateTime,capabilityString,capabilityInfo) values(" +
+                "createdTime,lastUpdateTime,capabilityString,capabilityInfo) values(" +
                 "'" + capabilityId + "'," +
                 "'" + objectId + "'," +
                 "'" + objectName + "'," +
@@ -515,7 +513,6 @@ public class DACDatabaseOperation {
                 "'" + grantedSubjectName + "'," +
                 "'" + subjectId + "'," +
                 "'" + subjectName + "'," +
-                "'" + capabilityType + "'," +
                 "'" + createdTime + "'," +
                 "'" + lastUpdateTime + "'," +
                 "'" + capabilityString + "'," +
@@ -564,6 +561,7 @@ public class DACDatabaseOperation {
 
     /**
      * The method to delete capabilities by granted subject's id
+     *
      * @param grantedSubjectId: granted subject id
      * @return 0: failed; >0: succeed
      */
@@ -572,7 +570,7 @@ public class DACDatabaseOperation {
                 " where grantedSubjectId=" + grantedSubjectId + ";";
         try (
                 Statement statement = connection.createStatement()
-                ) {
+        ) {
             return statement.executeUpdate(deleteCapabilityByGrantedSubjectIdSql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -582,6 +580,7 @@ public class DACDatabaseOperation {
 
     /**
      * The method to delete capabilities by subject's id.
+     *
      * @param subjectId: subject id
      * @return 0: failed; >0:succeed
      */
@@ -590,7 +589,7 @@ public class DACDatabaseOperation {
                 " where subjectId=" + subjectId + ';';
         try (
                 Statement statement = connection.createStatement()
-                ) {
+        ) {
             return statement.executeUpdate(deleteCapabilityBySubjectIdSql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -600,6 +599,7 @@ public class DACDatabaseOperation {
 
     /**
      * The method to delete capabilities by object's id
+     *
      * @param objectId
      * @return
      */
@@ -608,7 +608,7 @@ public class DACDatabaseOperation {
                 " where objectId=" + objectId + ";";
         try (
                 Statement statement = connection.createStatement()
-                ) {
+        ) {
             return statement.executeUpdate(deleteCapabilityByObjectIdSql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -617,22 +617,46 @@ public class DACDatabaseOperation {
     }
 
     /**
+     * The method to delete capability record by granted subject's id, subject's id, object's id and capability string.
+     * @param grantedSubjectId: granted subject's id
+     * @param subjectId: subject's id
+     * @param objectId" object's id
+     * @param capabilityString: capability string
+     * @return 0: deleted failed >0:deleted succeed.
+     */
+    public int deleteCapabilityByGSSOCSId(int grantedSubjectId, int subjectId, int objectId, String capabilityString) {
+        String deleteCapabilityByGSSOIdSql = "delete from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+                " where grantedSubjectId=" + grantedSubjectId +
+                " and subjectId=" + subjectId +
+                " and objectId=" + objectId +
+                " and capabilityString='" + capabilityString + "';";
+        try(
+                Statement statement = connection.createStatement()
+                ) {
+            return statement.executeUpdate(deleteCapabilityByGSSOIdSql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
      * The method to modify capability record in table.
-     * @param capabilityId: capability's id
+     *
+     * @param capabilityId:        capability's id
      * @param newCapabilityString: new capability string
-     * @param newCapabilityInfo: new capability info
+     * @param newCapabilityInfo:   new capability info
      * @return 0: operated failed; 1: operated succeed; 2: there is no capability record with id=capabilityId in the table
      */
     public int modifyCapability(int capabilityId,
-                                String capabilityType,
                                 long lastUpdateTime,
                                 String newCapabilityString,
                                 String newCapabilityInfo) {
         String modifyCapabilitySql = "update " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME + " set " +
-                "capabilityType=" + capabilityType +
                 "lastUpdateTime=" + lastUpdateTime +
-                "capabilityString=" + newCapabilityString +
-                ",capabilityInfo=" + newCapabilityInfo + ";";
+                ",capabilityString=" + newCapabilityString +
+                ",capabilityInfo=" + newCapabilityInfo +
+                " where capabilityId=" + capabilityId + ";";
         try (
                 Statement statement = connection.createStatement();
                 ResultSet checkResultSet = statement.executeQuery("select * from " +
@@ -655,6 +679,7 @@ public class DACDatabaseOperation {
 
     /**
      * The method to query a capability record according capability's id
+     *
      * @param capabilityId: capability's id
      * @return null: queried failed; Capability: new capability of subject
      */
@@ -677,7 +702,6 @@ public class DACDatabaseOperation {
                         resultSet.getString("grantedSubjectName"),
                         resultSet.getInt("subjectId"),
                         resultSet.getString("subjectName"),
-                        resultSet.getString("capabilityType"),
                         resultSet.getLong("createdTime"),
                         resultSet.getString("capabilityString"));
             }
@@ -690,6 +714,7 @@ public class DACDatabaseOperation {
 
     /**
      * The method to query all record of capability in the table.
+     *
      * @return null: queried failed; ArrayList<Capability>: queried succeed
      */
     public ArrayList<Capability> queryAllCapabilities() {
@@ -709,7 +734,6 @@ public class DACDatabaseOperation {
                         resultSet.getString("grantedSubjectName"),
                         resultSet.getInt("subjectId"),
                         resultSet.getString("subjectName"),
-                        resultSet.getString("capabilityType"),
                         resultSet.getLong("createdTime"),
                         resultSet.getString("capabilityString")));
                 while (resultSet.next()) {
@@ -720,7 +744,6 @@ public class DACDatabaseOperation {
                             resultSet.getString("grantedSubjectName"),
                             resultSet.getInt("subjectId"),
                             resultSet.getString("subjectName"),
-                            resultSet.getString("capabilityType"),
                             resultSet.getLong("createdTime"),
                             resultSet.getString("capabilityString")));
                 }
@@ -751,7 +774,6 @@ public class DACDatabaseOperation {
                         resultSet.getString("grantedSubjectName"),
                         resultSet.getInt("subjectId"),
                         resultSet.getString("subjectName"),
-                        resultSet.getString("capabilityType"),
                         resultSet.getLong("createdTime"),
                         resultSet.getString("capabilityString")));
                 while (resultSet.next()) {
@@ -762,7 +784,6 @@ public class DACDatabaseOperation {
                             resultSet.getString("grantedSubjectName"),
                             resultSet.getInt("subjectId"),
                             resultSet.getString("subjectName"),
-                            resultSet.getString("capabilityType"),
                             resultSet.getLong("createdTime"),
                             resultSet.getString("capabilityString")));
                 }
@@ -793,7 +814,6 @@ public class DACDatabaseOperation {
                         resultSet.getString("grantedSubjectName"),
                         resultSet.getInt("subjectId"),
                         resultSet.getString("subjectName"),
-                        resultSet.getString("capabilityType"),
                         resultSet.getLong("createdTime"),
                         resultSet.getString("capabilityString")));
                 while (resultSet.next()) {
@@ -804,7 +824,6 @@ public class DACDatabaseOperation {
                             resultSet.getString("grantedSubjectName"),
                             resultSet.getInt("subjectId"),
                             resultSet.getString("subjectName"),
-                            resultSet.getString("capabilityType"),
                             resultSet.getLong("createdTime"),
                             resultSet.getString("capabilityString")));
                 }
@@ -815,6 +834,7 @@ public class DACDatabaseOperation {
             return null;
         }
     }
+
     public ArrayList<Capability> queryCapabilitiesByGrantedSubjectId(int grantedSubjectId) {
         String queryOneCapabilityOfSubjectSql = "select * from " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
@@ -834,7 +854,6 @@ public class DACDatabaseOperation {
                         resultSet.getString("grantedSubjectName"),
                         resultSet.getInt("subjectId"),
                         resultSet.getString("subjectName"),
-                        resultSet.getString("capabilityType"),
                         resultSet.getLong("createdTime"),
                         resultSet.getString("capabilityString")));
                 while (resultSet.next()) {
@@ -845,7 +864,6 @@ public class DACDatabaseOperation {
                             resultSet.getString("grantedSubjectName"),
                             resultSet.getInt("subjectId"),
                             resultSet.getString("subjectName"),
-                            resultSet.getString("capabilityType"),
                             resultSet.getLong("createdTime"),
                             resultSet.getString("capabilityString")));
                 }
@@ -875,7 +893,6 @@ public class DACDatabaseOperation {
                         resultSet.getString("grantedSubjectName"),
                         resultSet.getInt("subjectId"),
                         resultSet.getString("subjectName"),
-                        resultSet.getString("capabilityType"),
                         resultSet.getLong("createdTime"),
                         resultSet.getString("capabilityString")));
                 while (resultSet.next()) {
@@ -886,7 +903,6 @@ public class DACDatabaseOperation {
                             resultSet.getString("grantedSubjectName"),
                             resultSet.getInt("subjectId"),
                             resultSet.getString("subjectName"),
-                            resultSet.getString("capabilityType"),
                             resultSet.getLong("createdTime"),
                             resultSet.getString("capabilityString")));
                 }
@@ -916,7 +932,6 @@ public class DACDatabaseOperation {
                         resultSet.getString("grantedSubjectName"),
                         resultSet.getInt("subjectId"),
                         resultSet.getString("subjectName"),
-                        resultSet.getString("capabilityType"),
                         resultSet.getLong("createdTime"),
                         resultSet.getString("capabilityString")));
                 while (resultSet.next()) {
@@ -927,7 +942,6 @@ public class DACDatabaseOperation {
                             resultSet.getString("grantedSubjectName"),
                             resultSet.getInt("subjectId"),
                             resultSet.getString("subjectName"),
-                            resultSet.getString("capabilityType"),
                             resultSet.getLong("createdTime"),
                             resultSet.getString("capabilityString")));
                 }
@@ -957,7 +971,6 @@ public class DACDatabaseOperation {
                         resultSet.getString("grantedSubjectName"),
                         resultSet.getInt("subjectId"),
                         resultSet.getString("subjectName"),
-                        resultSet.getString("capabilityType"),
                         resultSet.getLong("createdTime"),
                         resultSet.getString("capabilityString")));
                 while (resultSet.next()) {
@@ -968,7 +981,6 @@ public class DACDatabaseOperation {
                             resultSet.getString("grantedSubjectName"),
                             resultSet.getInt("subjectId"),
                             resultSet.getString("subjectName"),
-                            resultSet.getString("capabilityType"),
                             resultSet.getLong("createdTime"),
                             resultSet.getString("capabilityString")));
                 }
@@ -979,5 +991,154 @@ public class DACDatabaseOperation {
             return null;
         }
     }
+
+    public int addBlackToken(int blackTokenId,
+                             int objectId,
+                             int grantedSubjectId,
+                             int subjectId,
+                             long createdTime,
+                             long lastUpdateTime,
+                             String capabilityString,
+                             boolean blackToken) {
+        String addBlackTokenSql = "insert into " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME +
+                "(blackTokenId,objectId,grantedSubjectId,subjectId,createdTime,lastUpdateTime,capabilityString,blackToken) " +
+                "values('" + blackTokenId + "'," +
+                "'" + objectId + "'," +
+                "'" + grantedSubjectId + "'," +
+                "'" + subjectId + "'," +
+                "'" + createdTime + "'," +
+                "'" + lastUpdateTime + "'," +
+                "'" + capabilityString + "'," +
+                "'" + blackToken + "'" +
+                ")";
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet checkResultSet = statement.executeQuery("show tables like " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME + ";")
+        ) {
+            if (!checkResultSet.next()) {
+                statement.executeUpdate(ModelValues.DAC_AL_BLACK_TOKEN_TABLE_CREATE_SQL);
+            }
+            return statement.executeUpdate(addBlackTokenSql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public int deleteBlackToken(int blackTokenId) {
+        String deleteBlackTokenSql = "delete from " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME +
+                " where blackTokenId=" + blackTokenId + ";";
+        try (
+                Statement statement = connection.createStatement()
+        ) {
+            return statement.executeUpdate(deleteBlackTokenSql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public int modifyBlackToken(int blackTokenId, String capabilityString, boolean blackToken) {
+        String modifyBlackTokenSql = "update " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME + " set " +
+                "capabilityString=" + capabilityString +
+                ",blackToken=" + blackToken +
+                " where blackTokenId=" + blackTokenId + ";";
+        try (
+                Statement statement = connection.createStatement()
+        ) {
+            return statement.executeUpdate(modifyBlackTokenSql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public BlackToken queryOneBlackToken(int blackTokenId) {
+        String queryOneBlackTokenSql = "select * from " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME +
+                " where blackId=" + blackTokenId + ";";
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(queryOneBlackTokenSql)
+        ) {
+            if (!resultSet.next()) {
+                return null;
+            } else {
+                return new BlackToken(resultSet.getInt("blackTokenId"),
+                        resultSet.getInt("objectId"),
+                        resultSet.getInt("grantedSubjectId"),
+                        resultSet.getInt("subjectId"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getString("capabilityString"),
+                        resultSet.getBoolean("blackToken"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public ArrayList<BlackToken> queryAllBlackTokens() {
+        String queryAllBlackTokensSql = "select * from " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME + ";";
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(queryAllBlackTokensSql)
+        ) {
+            if (!resultSet.next()) {
+                return null;
+            } else {
+                ArrayList<BlackToken> result = new ArrayList<>();
+                result.add(new BlackToken(resultSet.getInt("blackTokenId"),
+                        resultSet.getInt("objectId"),
+                        resultSet.getInt("grantedSubjectId"),
+                        resultSet.getInt("subjectId"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getString("capabilityString"),
+                        resultSet.getBoolean("blackToken")));
+                while (resultSet.next()) {
+                    result.add(new BlackToken(resultSet.getInt("blackTokenId"),
+                            resultSet.getInt("objectId"),
+                            resultSet.getInt("grantedSubjectId"),
+                            resultSet.getInt("subjectId"),
+                            resultSet.getLong("createdTime"),
+                            resultSet.getString("capabilityString"),
+                            resultSet.getBoolean("blackToken")));
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public BlackToken queryBlackTokenByObjectIdGrantedSubjectIdSubjectId(int objectId,
+                                                                         int grantedSubjectId,
+                                                                         int subjectId,
+                                                                         String capabilityString) {
+        String queryBlackTokenByObjectIdGrantedSubjectIdSubjectIdSql = "select * from " +
+                ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME + " where objectId=" + objectId +
+                " and grantedSubjectId=" + grantedSubjectId +
+                " and subjectId=" + subjectId +
+                " and capabilityString='" + capabilityString + "';";
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(queryBlackTokenByObjectIdGrantedSubjectIdSubjectIdSql)) {
+            if (!resultSet.next()) {
+                return null;
+            } else {
+                return new BlackToken(resultSet.getInt("blackTokenId"),
+                        resultSet.getInt("objectId"),
+                        resultSet.getInt("grantedSubjectId"),
+                        resultSet.getInt("subjectId"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getString("capabilityString"),
+                        resultSet.getBoolean("blackToken"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
 
 }
