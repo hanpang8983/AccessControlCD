@@ -1,5 +1,7 @@
 package com.github.soukie.model.SystemUser;
 
+import java.util.Date;
+
 /**
  * Created by qiyiy on 2016/1/7.
  */
@@ -7,52 +9,47 @@ public class SystemAdminUser {
     public  int adminId ;
     public String adminName;
     private String adminPass;
-    public String adminCreateTime;
+    public long adminCreateTime;
     public String adminEmail;
     public String adminProfileUrl;
-    public String lastUpdateTime;
+    public long adminLastUpdateTime;
     public String adminPersonalWebsiteUrl;
 
     public SystemAdminUser() {
 
     }
 
-    public SystemAdminUser(int adminId,String adminName, String adminPass, String adminCreateTime) {
+    public SystemAdminUser(int adminId,String adminName, String adminPass, long adminCreateTime) {
         this.adminId = adminId;
         this.adminName = adminName;
         this.adminPass = adminPass;
-        this.lastUpdateTime = adminCreateTime;
+        this.adminLastUpdateTime = adminCreateTime;
         this.adminCreateTime = adminCreateTime;
     }
 
-    public void setAdminEmail(String adminEmail, String lastUpdateTime) {
+    public void setAdminEmail(String adminEmail) {
         this.adminEmail = adminEmail;
-        this.lastUpdateTime = lastUpdateTime;
+        this.adminLastUpdateTime = new Date().getTime();
     }
 
-    public void setAdminProfileUrl(String newAdminProfileUrl, String lastUpdateTime) {
+    public void setAdminProfileUrl(String newAdminProfileUrl) {
         this.adminProfileUrl = newAdminProfileUrl;
-        this.lastUpdateTime = lastUpdateTime;
+        this.adminLastUpdateTime = new Date().getTime();
     }
 
-    public void setAdminPersonalWebsiteUrl(String adminPersonalWebsiteUrl, String lastUpdateTime) {
+    public void setAdminPersonalWebsiteUrl(String adminPersonalWebsiteUrl) {
         this.adminPersonalWebsiteUrl = adminPersonalWebsiteUrl;
-        this.lastUpdateTime = lastUpdateTime;
+        this.adminLastUpdateTime = new Date().getTime();
     }
 
-    public void setAdminPass(String adminPass, String lastUpdateTime) {
-        this.lastUpdateTime = lastUpdateTime;
+    public void setAdminPass(String adminPass) {
         this.adminPass = adminPass;
+        this.adminLastUpdateTime = new Date().getTime();
     }
 
-    /*public void setAdminCreateTime(String adminCreateTime, String lastUpdateTime) {
-        this.adminCreateTime = adminCreateTime;
-        this.lastUpdateTime = lastUpdateTime;
-    }*/
-
-    public void setAdminName(String adminName, String lastUpdateTime) {
+    public void setAdminName(String adminName) {
         this.adminName = adminName;
-        this.lastUpdateTime = lastUpdateTime;
+        this.adminLastUpdateTime = new Date().getTime();
 
     }
 

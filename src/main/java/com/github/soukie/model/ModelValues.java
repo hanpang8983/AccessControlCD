@@ -9,6 +9,7 @@ public class ModelValues {
      */
 
     public static final String DATABASE_MYSQL_PROPERTIES_FILE_PATH = "res/properties/mysql.ini";
+    public static final String SYSTEM_ADMIN_USER_PROPERTIES_FILE_PATH = "res/properties/system_admin_user.ini";
 
     /**
      * DAC Policy Values.
@@ -20,7 +21,7 @@ public class ModelValues {
     public static final String DAC_SUBJECT_TABLE_NAME = "dac_subjects";
     public static final String DAC_OBJECT_TABLE_NAME = "dac_objects";
     public static final String DAC_AL_CAPABILITY_TABLE_NAME = "dac_al_capabilities";
-    public static final String DAC_AL_BLACK_TOKEN_TABLE_NAME = "dac_al_tokens";
+    public static final String DAC_AL_BLACK_TOKEN_TABLE_NAME = "dac_al_black_tokens";
 
     public static final String DAC_SUBJECT_TABLE_CREATE_SQL = "create table +" +
             DAC_SUBJECT_TABLE_NAME +
@@ -71,6 +72,6 @@ public class ModelValues {
             "createdTime long not null," +
             "lastUpdateTime long," +
             "capabilityString varchar(255) not null," +
-            "blackToken boolean not null," +
+            "blackToken boolean not null" +
             ")";
 }

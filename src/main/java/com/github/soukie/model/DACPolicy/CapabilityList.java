@@ -24,11 +24,11 @@ public class CapabilityList {
      * @return capability string likes "__w_d", "orwcd" or "_rwcd"
      */
     public static String capabilityListToString(CapabilityList capabilityList) {
-        return (capabilityList.ownership ? "o" : "_") +
-                (capabilityList.readable ? "r" : "_") +
-                (capabilityList.writable ? "w" : "_") +
-                (capabilityList.controllable ? "c" : "_") +
-                (capabilityList.deletable ? "d" : "_");
+        return (capabilityList.ownership ? "o" : "-") +
+                (capabilityList.readable ? "r" : "-") +
+                (capabilityList.writable ? "w" : "-") +
+                (capabilityList.controllable ? "c" : "-") +
+                (capabilityList.deletable ? "d" : "-");
     }
 
     public static CapabilityList capabilityStringToList(String capabilityString) {
@@ -38,4 +38,12 @@ public class CapabilityList {
                 capabilityString.charAt(3) == 'c',
                 capabilityString.charAt(4) == 'd');
     }
+    public static int capabilityStringToIntValue(String capabilityString) {
+        return (capabilityString.charAt(0) == 'o' ? 16 : 0) +
+                (capabilityString.charAt(1) == 'r' ? 8 : 0) +
+                (capabilityString.charAt(2) == 'w' ? 4 : 0) +
+                (capabilityString.charAt(3) == 'c' ? 2 : 0) +
+                (capabilityString.charAt(4) == 'd' ? 1 : 0);
+    }
+
 }

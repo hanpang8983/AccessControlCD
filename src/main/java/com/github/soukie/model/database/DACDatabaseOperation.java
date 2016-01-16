@@ -565,7 +565,7 @@ public class DACDatabaseOperation {
      * @param grantedSubjectId: granted subject id
      * @return 0: failed; >0: succeed
      */
-    public int deleteCapbilityByGrantedSubjectId(int grantedSubjectId) {
+    public int deleteCapabilityByGrantedSubjectId(int grantedSubjectId) {
         String deleteCapabilityByGrantedSubjectIdSql = "delete from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where grantedSubjectId=" + grantedSubjectId + ";";
         try (
@@ -610,6 +610,42 @@ public class DACDatabaseOperation {
                 Statement statement = connection.createStatement()
         ) {
             return statement.executeUpdate(deleteCapabilityByObjectIdSql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * The method to delete capability by granted subject's id, object's id and capability string. And will recursively
+     * delete all capability from granted subject.
+     * @param grantedSubjectId: granted subject's id
+     * @param objectId: object's id
+     * @param capabilityString: capability string
+     * @return 0: deleted failed or exception; >0: number of deleted capability record
+     */
+    public int deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString(int grantedSubjectId, int objectId, String capabilityString) {
+        try(
+                Statement statement = connection.createStatement()
+        ) {
+            return deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString(grantedSubjectId,objectId,capabilityString,statement);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    private int deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString(int grantedSubjectId, int objectId, String capabilityString, Statement statement) {
+        int result = 0;
+        String deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString = "select * from" + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+                " where grantedSubjectId=" + grantedSubjectId +
+                " and objectId=" + objectId +
+                " and capabilityString='" + capabilityString + "';";
+        try (ResultSet resultSet = statement.executeQuery(deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString)) {
+            while (resultSet.next()) {
+                result += deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString(resultSet.getInt("subjectId"), objectId, capabilityString, statement);
+            }
+            return result;
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
@@ -755,6 +791,11 @@ public class DACDatabaseOperation {
         }
     }
 
+    /**
+     * The method to query capability by subject's id
+     * @param subjectId: subject's id
+     * @return Succeed: ArrayList of capabilities that had queried; Failed: null
+     */
     public ArrayList<Capability> queryCapabilitiesBySubjectId(int subjectId) {
         String queryOneCapabilityOfSubjectSql = "select * from " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
@@ -795,6 +836,11 @@ public class DACDatabaseOperation {
         }
     }
 
+    /**
+     * The method to query capabilities by object's id
+     * @param objectId: object's id
+     * @return Succeed: ArrayList of capabilities that had queried; Failed: null
+     */
     public ArrayList<Capability> queryCapabilitiesByObjectId(int objectId) {
         String queryOneCapabilityOfSubjectSql = "select * from " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
@@ -835,6 +881,11 @@ public class DACDatabaseOperation {
         }
     }
 
+    /**
+     * The method to query capabilities by granted subject's id
+     * @param grantedSubjectId: granted subject's id
+     * @return Succeed: ArrayList of capabilities that had queried; Failed: null
+     */
     public ArrayList<Capability> queryCapabilitiesByGrantedSubjectId(int grantedSubjectId) {
         String queryOneCapabilityOfSubjectSql = "select * from " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
@@ -875,6 +926,12 @@ public class DACDatabaseOperation {
         }
     }
 
+    /**
+     * The method to query capabilities by subject's and object's id
+     * @param subjectId: subject's id
+     * @param objectId: object's id
+     * @return Succeed: ArrayList of capabilities that had queried; Failed: null
+     */
     public ArrayList<Capability> queryCapabilitiesBySubjectIdAndObjectId(int subjectId, int objectId) {
         String queryCapabilitiesBySubjectIdAndObjectIdSql = "select from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where subjectId=" + subjectId + " and objectId=" + objectId + ";";
@@ -914,6 +971,12 @@ public class DACDatabaseOperation {
         }
     }
 
+    /**
+     * The method to query capabilities by granted subject and object's id.
+     * @param grantedSubjectId: granted subject's id
+     * @param objectId: object's id
+     * @return Succeed: ArrayList of capabilities that had queried; Failed: null
+     */
     public ArrayList<Capability> queryCapabilitiesByGrantedSubjectIdAndObjectId(int grantedSubjectId, int objectId) {
         String queryCapabilitiesBySubjectIdAndObjectIdSql = "select from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where greantedSubjectId=" + grantedSubjectId + " and objectId=" + objectId + ";";
@@ -953,6 +1016,13 @@ public class DACDatabaseOperation {
         }
     }
 
+
+    /**
+     * The method to query capabilities by granted subject and subject's id
+     * @param grantedSubjectId: granted subject's id
+     * @param subjectId: subject's id
+     * @return Succeed: ArrayList of capabilities that had queried; Failed: null
+     */
     public ArrayList<Capability> queryCapabilitiesByGrantedSubjectIdAndSubjectID(int grantedSubjectId, int subjectId) {
         String queryCapabilitiesBySubjectIdAndObjectIdSql = "select from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where grantedSubjectId=" + grantedSubjectId + " and subjectId=" + subjectId + ";";
@@ -992,6 +1062,18 @@ public class DACDatabaseOperation {
         }
     }
 
+    /**
+     * The method to add one black token.
+     * @param blackTokenId: blackTokenId
+     * @param objectId: object' id
+     * @param grantedSubjectId: granted subject's id
+     * @param subjectId: subject's id
+     * @param createdTime: created time
+     * @param lastUpdateTime: last update time
+     * @param capabilityString: capability string
+     * @param blackToken: black token true or false
+     * @return 0: added failed; >0: added succeed
+     */
     public int addBlackToken(int blackTokenId,
                              int objectId,
                              int grantedSubjectId,
@@ -1025,6 +1107,11 @@ public class DACDatabaseOperation {
         }
     }
 
+    /**
+     * The method delete a black token record by black token's id.
+     * @param blackTokenId: black token's id
+     * @return 0: deleted failed; >0:deleted succeed
+     */
     public int deleteBlackToken(int blackTokenId) {
         String deleteBlackTokenSql = "delete from " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME +
                 " where blackTokenId=" + blackTokenId + ";";
@@ -1038,6 +1125,13 @@ public class DACDatabaseOperation {
         }
     }
 
+    /**
+     * The method to modify a black token.
+     * @param blackTokenId: black token's id
+     * @param capabilityString: capability string
+     * @param blackToken: black token true or false
+     * @return 0: modified failed; >0: modified succeed
+     */
     public int modifyBlackToken(int blackTokenId, String capabilityString, boolean blackToken) {
         String modifyBlackTokenSql = "update " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME + " set " +
                 "capabilityString=" + capabilityString +
@@ -1053,6 +1147,11 @@ public class DACDatabaseOperation {
         }
     }
 
+    /**
+     * The method to query one black token by id
+     * @param blackTokenId: black token'id
+     * @return Succeed: a black token; Failed: null
+     */
     public BlackToken queryOneBlackToken(int blackTokenId) {
         String queryOneBlackTokenSql = "select * from " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME +
                 " where blackId=" + blackTokenId + ";";
@@ -1077,6 +1176,10 @@ public class DACDatabaseOperation {
         }
     }
 
+    /**
+     * The method to query all black token record.
+     * @return Succeed: ArrayList of all black tokens; Failed: null
+     */
     public ArrayList<BlackToken> queryAllBlackTokens() {
         String queryAllBlackTokensSql = "select * from " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME + ";";
         try (
@@ -1111,6 +1214,14 @@ public class DACDatabaseOperation {
         }
     }
 
+    /**
+     * The method to query black token by object'id, granted subject's id, subject's id and capabilityString
+     * @param objectId: object's id
+     * @param grantedSubjectId: granted subject's id
+     * @param subjectId: subject's id
+     * @param capabilityString: capability string
+     * @return Succeed: A black token; Failed: null
+     */
     public BlackToken queryBlackTokenByObjectIdGrantedSubjectIdSubjectId(int objectId,
                                                                          int grantedSubjectId,
                                                                          int subjectId,
@@ -1136,6 +1247,71 @@ public class DACDatabaseOperation {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+
+    }
+
+    /**
+     * The method to check if subject have control of object.
+     * @param subjectId: subject's id
+     * @param objectId: object's id
+     * @return true or false
+     */
+    public boolean ifSubjectHaveControlOfObject(int subjectId, int objectId) {
+        String ifSubjectHaveControlOfObjectSql = "select * from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+                " where subjectId=" + subjectId +
+                " and objectId=" + objectId +
+                " and capabilityString like " + "\"___c_\"";
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(ifSubjectHaveControlOfObjectSql)
+        ) {
+            if (resultSet.next()) {
+                return true;
+            } else
+                return false;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * The method to query if there is cyclical capability between granted subject and subject on object's control
+     * @param grantedSubjectId: granted subject's id
+     * @param subjectId: subject's id
+     * @param object: object
+     * @return true: cyclical capability; false: no cyclical capability
+     */
+    public boolean ifCyclicalCapability(int grantedSubjectId, int subjectId, ACLObject object) {
+        try (Statement statement = connection.createStatement()) {
+            return ifCyclicalCapability(grantedSubjectId, subjectId, object, statement);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    private boolean ifCyclicalCapability(int grantedSubjectId, int subjectId, ACLObject object, Statement statement) {
+        String ifCyclicalCapabilitySql = "select * from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+                " where subjectId=" + grantedSubjectId +
+                " and objectId=" + object.getId() +
+                " and capabilityString like " + "\"___c_\"";
+        try (ResultSet resultSet = statement.executeQuery(ifCyclicalCapabilitySql)) {
+            while (resultSet.next()) {
+                if (resultSet.getInt("grantedSubjectId") == subjectId) {
+                    return true;
+                } else if (object.getCreatedSubjectId() == resultSet.getInt("grantedSubjectId")) {
+                    return false;
+                }
+                return ifCyclicalCapability(resultSet.getInt("grantedSubjectId"), subjectId, object, statement);
+            }
+            return false;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
 
     }

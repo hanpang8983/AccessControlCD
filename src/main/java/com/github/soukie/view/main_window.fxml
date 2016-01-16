@@ -20,7 +20,6 @@
           <Menu id="main_window_menu_Edit" fx:id="editMenu" mnemonicParsing="false" text="Edit">
             <items>
               <MenuItem id="main_window_menu_Edit_ClearLog" fx:id="editMenuClearLog" mnemonicParsing="false" text="ClearLog" />
-                  <MenuItem id="main_window_menu_Edit_Delete" fx:id="editMenuDelete" mnemonicParsing="false" text="Delete" />
                   <MenuItem id="main_window_menu_Edit_Delete" fx:id="editMenuModifyAdminInfo" mnemonicParsing="false" text="Modify Admin Info" />
             </items>
           </Menu>
@@ -28,24 +27,31 @@
                <items>
                   <Menu mnemonicParsing="false" text="Subjects">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Add Subject" />
-                        <MenuItem mnemonicParsing="false" text="Delete Subject" />
-                        <MenuItem mnemonicParsing="false" text="Modify Subject" />
+                      <MenuItem fx:id="dacAddSubject" mnemonicParsing="false" text="Add Subject" />
+                        <MenuItem fx:id="dacDeleteSubject" mnemonicParsing="false" text="Delete Subject" />
+                        <MenuItem fx:id="dacModifySubject" mnemonicParsing="false" text="Modify Subject" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="objects">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Add Object" />
-                        <MenuItem mnemonicParsing="false" text="Delete Object" />
-                        <MenuItem mnemonicParsing="false" text="Modify Object" />
+                      <MenuItem fx:id="dacAddObject" mnemonicParsing="false" text="Add Object" />
+                        <MenuItem fx:id="dacDeleteObject" mnemonicParsing="false" text="Delete Object" />
+                        <MenuItem fx:id="dacModifyObject" mnemonicParsing="false" text="Modify Object" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Capabilities">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Add Capability" />
-                        <MenuItem mnemonicParsing="false" text="Delete Capability" />
-                        <MenuItem mnemonicParsing="false" text="Modify Capability" />
+                      <MenuItem fx:id="dacAddCapability" mnemonicParsing="false" text="Add Capability" />
+                        <MenuItem fx:id="dacDeleteCapability" mnemonicParsing="false" text="Delete Capability" />
+                        <MenuItem fx:id="dacModifyCapability" mnemonicParsing="false" text="Modify Capability" />
                     </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="BlackTokens">
+                     <items>
+                        <MenuItem fx:id="dacAddBlackToken" mnemonicParsing="false" text="Add Black Token" />
+                        <MenuItem fx:id="dacDeleteBlackToken" mnemonicParsing="false" text="Delete Black Token" />
+                        <MenuItem fx:id="dacModifyBlackToken" mnemonicParsing="false" text="Modify Black Token" />
+                     </items>
                   </Menu>
                </items>
             </Menu>
@@ -83,32 +89,49 @@
           </Menu>
         </menus>
       </MenuBar>
-      <SplitPane id="main_window_dac_split_pane" dividerPositions="0.15, 0.8" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" prefWidth="900.0" VBox.vgrow="ALWAYS">
+      <SplitPane dividerPositions="0.15, 0.8" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" prefWidth="900.0" VBox.vgrow="ALWAYS">
         <items>
-            <GridPane prefHeight="337.0" prefWidth="176.0">
+            <GridPane>
                <children>
-                  <MenuBar fx:id="dacSubjectsMenuBar" snapToPixel="false">
+                  <MenuBar fx:id="dacSubjectsMenuBar" snapToPixel="false" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
                      <menus>
                         <Menu mnemonicParsing="false" text="DAC Policy" />
                      </menus>
                   </MenuBar>
-                  <Accordion prefHeight="306.0" prefWidth="202.0" GridPane.rowIndex="1">
+                  <Accordion GridPane.rowIndex="1">
                     <panes>
-                      <TitledPane fx:id="dacAllSubjetsTitledPane" animated="false" text="Subjects">
+                      <TitledPane fx:id="dacAllSubjectsTitledPane" animated="false" text="Subjects">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane fx:id="dacAllSubjectsAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ListView fx:id="dacAllSubjectsListView" layoutY="13.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                 </children></AnchorPane>
                         </content>
                       </TitledPane>
                       <TitledPane fx:id="dacAllObjectsTitledPane" animated="false" text="Objects">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane fx:id="dacAllObjectsAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ListView fx:id="dacAllObjectsListView" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                 </children></AnchorPane>
                         </content>
                       </TitledPane>
-                      <TitledPane fx:id="dacALLCapabilityTitledPane" animated="false" prefHeight="225.0" prefWidth="202.0" text="Capabilities">
+                      <TitledPane fx:id="dacALLCapabilityTitledPane" animated="false" text="Capabilities">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane fx:id="dacAllCapabilitiesAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ListView fx:id="dacAllCapabilitiesListView" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                 </children></AnchorPane>
                         </content>
                       </TitledPane>
+                        <TitledPane fx:id="dacAllBlackTokensTitledPane" animated="false" layoutX="10.0" layoutY="70.0" text="BlackTokens">
+                           <content>
+                              <AnchorPane fx:id="dacAllBlackTokensAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ListView fx:id="dacAllBlackTokensListView" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                 </children></AnchorPane>
+                           </content>
+                        </TitledPane>
                     </panes>
                   </Accordion>
                </children>
@@ -122,21 +145,7 @@
             </GridPane>
             <ScrollPane prefHeight="204.0" prefWidth="265.0">
                <content>
-                  <TreeTableView id="dac_suject_acl_tree_table_view" fx:id="dacCapabilitiesTableView">
-                    <columns>
-                      <TreeTableColumn editable="false" prefWidth="100.0" sortable="false" text="CapabilityId" />
-                      <TreeTableColumn editable="false" minWidth="0.0" prefWidth="100.0" sortable="false" text="SubjectId" />
-                        <TreeTableColumn id="dac_acl_tree_table_column_SubjectName" editable="false" minWidth="0.0" prefWidth="150.0" sortable="false" text="SubjectName" />
-                        <TreeTableColumn editable="false" prefWidth="100.0" sortable="false" text="ObjectId" />
-                        <TreeTableColumn editable="false" prefWidth="150.0" sortable="false" text="ObjectName" />
-                        <TreeTableColumn editable="false" prefWidth="150.0" sortable="false" text="GrantedSubjectId" />
-                        <TreeTableColumn editable="false" prefWidth="180.0" sortable="false" text="GrantedSubjectName" />
-                        <TreeTableColumn editable="false" prefWidth="150.0" sortable="false" text="CapabilityString" />
-                        <TreeTableColumn editable="false" prefWidth="200.0" sortable="false" text="CapabilityInfo" />
-                        <TreeTableColumn editable="false" prefWidth="200.0" sortable="false" text="CreatedTime" />
-                        <TreeTableColumn editable="false" prefWidth="200.0" sortable="false" text="LastUpdatedTime" />
-                    </columns>
-                  </TreeTableView>
+                  <TableView fx:id="dacAllCapabilitiesTableView" prefHeight="612.0" prefWidth="1175.0" />
                </content></ScrollPane>
             <ScrollPane fx:id="dacCapabilityDetailsScrollPane" prefHeight="206.0" prefWidth="176.0" />
         </items>
@@ -152,7 +161,7 @@
                   </MenuBar>
                   <Accordion GridPane.rowIndex="1">
                     <panes>
-                      <TitledPane fx:id="rbacAllRolesTitledPane" animated="false" prefHeight="242.0" prefWidth="237.0" text="Roles">
+                      <TitledPane fx:id="rbacAllRolesTitledPane" animated="false" text="Roles">
                         <content>
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                         </content>
