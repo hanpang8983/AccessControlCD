@@ -147,7 +147,7 @@ public class DACDatabaseOperation {
                           long lastUpdateTime) {
         String addSubjectRecordSql = "insert into " +
                 ModelValues.DAC_SUBJECT_TABLE_NAME +
-                "(id,name,password,info,createdTime,lastUpdateTimme) values('" +
+                "(id,name,password,info,createdTime,lastUpdateTime) values('" +
                 id + "','" +
                 name + "','" +
                 password + "','" +
@@ -183,7 +183,7 @@ public class DACDatabaseOperation {
      */
 
     public int deleteSubject(int id) {
-        String deleteSubjectSql = "delete from +" + ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";";
+        String deleteSubjectSql = "delete from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where id=" + id + ";";
         try (
                 Statement statement = connection.createStatement();
                 ResultSet checkResultSet = statement.executeQuery("select * from " +
@@ -213,11 +213,11 @@ public class DACDatabaseOperation {
      */
     public int modifySubject(int id, String name, String password, String info, long lastUpdateTime) {
         String modifySubjectSql = "update " + ModelValues.DAC_SUBJECT_TABLE_NAME + " set " +
-                "name=" + name +
-                ",password=" + password +
-                ",info=" + info +
-                ",lastUpdateTime=" + lastUpdateTime +
-                " where id=" + id + ";";
+                "name='" + name +
+                "',password='" + password +
+                "',info='" + info +
+                "',lastUpdateTime='" + lastUpdateTime +
+                "' where id=" + id + ";";
         try (
                 Statement statement = connection.createStatement();
                 ResultSet checkResultSet = statement.executeQuery("select * from " +
@@ -252,15 +252,59 @@ public class DACDatabaseOperation {
                 return null;
             } else {
                 return new ACLSubject(id,
-                        resultSet.getString(2),
-                        resultSet.getString(3),
-                        resultSet.getLong(5),
-                        resultSet.getLong(6));
+                        resultSet.getString("name"),
+                        resultSet.getString("password"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getLong("lastUpdateTime"));
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public ACLSubject queryOneSubjectByName(String name) {
+        String queryOneSubjectByName = "select * from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where name='" + name + "';";
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(queryOneSubjectByName)
+        ) {
+            if (!resultSet.next()) {
+                return null;
+            } else {
+                return new ACLSubject(resultSet.getInt("id"),
+                        name,
+                        resultSet.getString("password"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getLong("lastUpdateTime"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * The method to query subject's id by subject's name.
+     * @param name: subject's name
+     * @return -1: queried no record or failed; != -1: subject's id
+     */
+    public int querySubjectIdByName(String name) {
+        String querySubjectIdByNameSql = "select id from " + ModelValues.DAC_SUBJECT_TABLE_NAME + " where name='" + name + "';";
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(querySubjectIdByNameSql)
+                ){
+            if (!resultSet.next()) {
+                return -1;
+            } else {
+                return resultSet.getInt("id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
         }
     }
 
@@ -283,13 +327,13 @@ public class DACDatabaseOperation {
                 resultACLSubjectArrayList.add(new ACLSubject(resultSet.getInt("id"),
                         resultSet.getString("name"),
                         resultSet.getString("password"),
-                        resultSet.getLong("createTime"),
+                        resultSet.getLong("createdTime"),
                         resultSet.getLong("lastUpdateTime")));
                 while (resultSet.next()) {
                     resultACLSubjectArrayList.add(new ACLSubject(resultSet.getInt("id"),
                             resultSet.getString("name"),
                             resultSet.getString("password"),
-                            resultSet.getLong("createTime"),
+                            resultSet.getLong("createdTime"),
                             resultSet.getLong("lastUpdateTime")));
                 }
                 return resultACLSubjectArrayList;
@@ -318,15 +362,15 @@ public class DACDatabaseOperation {
                          boolean executable) {
         String addObjectRecordSql = "insert into " +
                 ModelValues.DAC_OBJECT_TABLE_NAME +
-                "(id,name,info,createdSubjectId,createdSubjectName,createTime,lastUpdateTime,executeable) values('" +
+                "(id,name,info,createdSubjectId,createdSubjectName,createdTime,lastUpdateTime,executable) values('" +
                 id + "','" +
                 name + "','" +
                 info + "','" +
                 createdSubjectId + "','" +
                 createdSubjectName + "','" +
                 createdTime + "','" +
-                createdTime + "','" +
-                executable + "');";
+                createdTime + "'," +
+                executable + ");";
 
         try (
                 Statement statement = connection.createStatement();
@@ -355,7 +399,7 @@ public class DACDatabaseOperation {
      * @return 0: operated failed; 1: operated succeed; 2: there is no record as id = id in the table
      */
     public int deleteObject(int id) {
-        String deleteObjectSql = "delete from +" + ModelValues.DAC_OBJECT_TABLE_NAME + " where id=" + id + ";";
+        String deleteObjectSql = "delete from " + ModelValues.DAC_OBJECT_TABLE_NAME + " where id=" + id + ";";
         try (
                 Statement statement = connection.createStatement();
                 ResultSet checkResultSet = statement.executeQuery("select * from " +
@@ -390,10 +434,10 @@ public class DACDatabaseOperation {
                             long lastUpdateTime,
                             boolean executable) {
         String modifyObjectSql = "update " + ModelValues.DAC_OBJECT_TABLE_NAME + " set " +
-                "name=" + name +
-                ",info=" + info +
-                ",lastUpdateTime=" + lastUpdateTime +
-                ",executeable=" + executable +
+                "name='" + name +
+                "',info='" + info +
+                "',lastUpdateTime='" + lastUpdateTime +
+                "',executable=" + executable +
                 " where id=" + id + ";";
         try (
                 Statement statement = connection.createStatement();
@@ -433,12 +477,53 @@ public class DACDatabaseOperation {
                         resultSet.getString("name"),
                         resultSet.getInt("createdSubjectId"),
                         resultSet.getString("createdSubjectName"),
-                        resultSet.getLong("createTime"),
+                        resultSet.getLong("createdTime"),
                         resultSet.getBoolean(5));
             }
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public ACLObject queryOneObjectByName(String name) {
+        String queryOneObjectByNameSQL = "select * from " + ModelValues.DAC_OBJECT_TABLE_NAME + " where name='" + name + "';";
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(queryOneObjectByNameSQL)
+        ) {
+            if (!resultSet.next()) {
+                return null;
+            } else {
+                return new ACLObject(resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getInt("createdSubjectId"),
+                        resultSet.getString("createdSubjectName"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getBoolean(5));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public int queryObjectIdByName(String name) {
+        String queryObjectNameByIdSql = "select id from " + ModelValues.DAC_OBJECT_TABLE_NAME + " where name='" + name + "';";
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(queryObjectNameByIdSql)
+                ) {
+            if (resultSet.next()) {
+                return resultSet.getInt("id");
+            } else {
+                return -1;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
         }
     }
 
@@ -461,14 +546,14 @@ public class DACDatabaseOperation {
                         resultSet.getString("name"),
                         resultSet.getInt("createdSubjectId"),
                         resultSet.getString("createdSubjectName"),
-                        resultSet.getLong("createTime"),
+                        resultSet.getLong("createdTime"),
                         resultSet.getBoolean(5)));
                 while (resultSet.next()) {
                     resultQueryAllObjects.add(new ACLObject(resultSet.getInt("id"),
                             resultSet.getString("name"),
                             resultSet.getInt("createdSubjectId"),
                             resultSet.getString("createdSubjectName"),
-                            resultSet.getLong("createTime"),
+                            resultSet.getLong("createdTime"),
                             resultSet.getBoolean(5)));
                 }
                 return resultQueryAllObjects;
@@ -486,7 +571,7 @@ public class DACDatabaseOperation {
      * @param objectId:           object's id
      * @param objectName:         object's name
      * @param grantedSubjectId:   granted subject's id
-     * @param grantedSubjectName: grated subject's name
+     * @param grantedSubjectName: granted subject's name
      * @param capabilityString:   capability's string
      * @param capabilityInfo:     capability's information
      * @return 0: operated failed; 1: operated succeed
@@ -504,7 +589,7 @@ public class DACDatabaseOperation {
                              String capabilityInfo) {
         String addCapabilitySql = "insert into " +
                 ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
-                "(capabilityId,objectId,objectName,gratedSubjectId,gratedSubjectName,subjectId,subjectName," +
+                "(capabilityId,objectId,objectName,grantedSubjectId,grantedSubjectName,subjectId,subjectName," +
                 "createdTime,lastUpdateTime,capabilityString,capabilityInfo) values(" +
                 "'" + capabilityId + "'," +
                 "'" + objectId + "'," +
@@ -690,9 +775,9 @@ public class DACDatabaseOperation {
                                 String newCapabilityInfo) {
         String modifyCapabilitySql = "update " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME + " set " +
                 "lastUpdateTime=" + lastUpdateTime +
-                ",capabilityString=" + newCapabilityString +
-                ",capabilityInfo=" + newCapabilityInfo +
-                " where capabilityId=" + capabilityId + ";";
+                ",capabilityString='" + newCapabilityString +
+                "',capabilityInfo='" + newCapabilityInfo +
+                "' where capabilityId=" + capabilityId + ";";
         try (
                 Statement statement = connection.createStatement();
                 ResultSet checkResultSet = statement.executeQuery("select * from " +
@@ -1134,8 +1219,8 @@ public class DACDatabaseOperation {
      */
     public int modifyBlackToken(int blackTokenId, String capabilityString, boolean blackToken) {
         String modifyBlackTokenSql = "update " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME + " set " +
-                "capabilityString=" + capabilityString +
-                ",blackToken=" + blackToken +
+                "capabilityString='" + capabilityString +
+                "',blackToken=" + blackToken +
                 " where blackTokenId=" + blackTokenId + ";";
         try (
                 Statement statement = connection.createStatement()

@@ -49,6 +49,6 @@ public class DACDatabaseOperationTest extends TestCase{
         testDACDatabaseOperation.initDatabaseConnection("jdbc:mysql://127.0.0.1:3306/access_control_cd", "root", "142123");
 
         Statement statement = testDACDatabaseOperation.getConnection().createStatement();
-        statement.executeUpdate(ModelValues.DAC_AL_CAPABILITY_TABLE_CREATE_SQL);
+        statement.executeUpdate(ModelValues.DAC_AL_BLACK_TOKEN_TABLE_CREATE_SQL);
     }
 }

@@ -23,7 +23,7 @@ public class ModelValues {
     public static final String DAC_AL_CAPABILITY_TABLE_NAME = "dac_al_capabilities";
     public static final String DAC_AL_BLACK_TOKEN_TABLE_NAME = "dac_al_black_tokens";
 
-    public static final String DAC_SUBJECT_TABLE_CREATE_SQL = "create table +" +
+    public static final String DAC_SUBJECT_TABLE_CREATE_SQL = "create table " +
             DAC_SUBJECT_TABLE_NAME +
             "(" +
             "id int not null primary key," +
@@ -31,7 +31,7 @@ public class ModelValues {
             "password varchar(255) not null," +
             "info varchar(255)," +
             "createdTime long," +
-            "lastUpdateTime" +
+            "lastUpdateTime long" +
             ");";
 
     public static final String DAC_OBJECT_TABLE_CREATE_SQL = "create table " +

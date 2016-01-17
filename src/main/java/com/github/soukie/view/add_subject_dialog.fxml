@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.soukie.view.AddSubjectDialogController">
+  <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+   <children>
+      <Label alignment="CENTER" prefHeight="58.0" prefWidth="151.0" text="Add Subject">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Label>
+      <Label alignment="CENTER" prefHeight="57.0" prefWidth="152.0" text="Subject ID" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <Label alignment="CENTER" layoutX="160.0" layoutY="68.0" prefHeight="57.0" prefWidth="152.0" text="Subject Name" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <Label alignment="CENTER" layoutX="160.0" layoutY="125.0" prefHeight="57.0" prefWidth="152.0" text="Subject Password" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+      <TextField fx:id="subjectIdTextField" alignment="CENTER" promptText="1~999" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+      <TextField fx:id="subjectNameTextField" alignment="CENTER" layoutX="310.0" layoutY="82.0" promptText="subject name" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+      <TextField fx:id="subjectPassTextFiled" alignment="CENTER" layoutX="310.0" layoutY="139.0" promptText="subject password" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+      <Button fx:id="sureButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="30.0" prefWidth="157.0" text="Sure" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+      <Button fx:id="cancelButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="154.0" text="Cancel" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+   </children>
+</GridPane>

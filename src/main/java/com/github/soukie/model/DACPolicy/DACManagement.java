@@ -2,12 +2,15 @@ package com.github.soukie.model.DACPolicy;
 
 import com.github.soukie.model.DACPolicy.objects.ACLObject;
 import com.github.soukie.model.DACPolicy.objects.ACLSubject;
+import com.github.soukie.model.DACPolicy.objects.BlackToken;
 import com.github.soukie.model.DACPolicy.objects.Capability;
+import com.github.soukie.model.ModelValues;
 import com.github.soukie.model.database.DACDatabaseOperation;
 import com.github.soukie.model.security.SecurityEncode;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -20,6 +23,15 @@ import java.util.Date;
  */
 public class DACManagement {
     private DACDatabaseOperation dacDatabaseOperation;
+
+    public DACManagement() {
+        this.dacDatabaseOperation = new DACDatabaseOperation(new Date().getTime());
+        try {
+            this.dacDatabaseOperation.initDatabaseConnection(ModelValues.DATABASE_MYSQL_PROPERTIES_FILE_PATH);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
     public DACManagement(DACDatabaseOperation dacDatabaseOperation) {
         this.dacDatabaseOperation = dacDatabaseOperation;
@@ -73,15 +85,29 @@ public class DACManagement {
         return dacDatabaseOperation.modifySubject(id, name, password, info, lastUpdateTime);
     }
 
+    public ACLSubject queryOneSubject(ACLSubject subject) {
+        return dacDatabaseOperation.queryOneSubject(subject.getId());
+    }
+
+    public int querySubjectIdByName(ACLSubject subject) {
+        return dacDatabaseOperation.querySubjectIdByName(subject.getName());
+    }
+
+    public ArrayList<ACLSubject> queryAllSubjects() {
+        return dacDatabaseOperation.queryAllSubjects();
+    }
+
+
+
     /**
      * The method to create a object record in database by subject.
      *
      * @param subject: subject
      * @param object:  object
-     * @param dacMod:  DAC mod
-     * @return 0: created failed; >0: created succeed
+     * @return 0: created failed; 1: created object succeed but created self capability failed
+     * 2: created object and self capability succeed.
      */
-    public int createObject(ACLSubject subject, ACLObject object, String dacMod) {
+    public int createObject(ACLSubject subject, ACLObject object) {
         int addObjectResult = dacDatabaseOperation.addObject(object.getId(),
                 object.getName(),
                 object.getInfo(),
@@ -89,34 +115,39 @@ public class DACManagement {
                 subject.getName(),
                 object.getCreateTime(),
                 object.isExecutable());
-        int addCapabilityResult = createCapability(subject, subject, object, "orwcd");
-        return addCapabilityResult | addObjectResult;
+        int createSeletCapabilityResult = createSelfCapability(subject, object, "orwcd");
+        return addObjectResult == 0 ? 0 : (createSeletCapabilityResult == 0 ? 1 : 2);
     }
 
     /**
      * The method to delete a object by id, and remove all capabilities based on subject.
      *
-     * @param id: subject id
+     * @param objectId: object's id
      * @return 0: delete failed 1: deleted succeed
      */
-    public int deleteObject(int id) {
-        int deleteObjectResult = dacDatabaseOperation.deleteObject(id);
-        int deleteCapabilitiesByObjectIdResult = dacDatabaseOperation.deleteCapabilityByObjectId(id);
+    public int deleteObject(int objectId) {
+        int deleteObjectResult = dacDatabaseOperation.deleteObject(objectId);
+        int deleteCapabilitiesByObjectIdResult = dacDatabaseOperation.deleteCapabilityByObjectId(objectId);
         return deleteCapabilitiesByObjectIdResult | deleteObjectResult;
     }
+
 
     /**
      * The method to modify object's values includes name, info, lastUpdateTime and executeable
      *
-     * @param id:             object's id
+     * @param objectId:         object
      * @param name:           new name
      * @param info:           new info
      * @param lastUpdateTime: last update time
      * @param executable:     executeable
      * @return
      */
-    public int modifyObject(int id, String name, String info, long lastUpdateTime, boolean executable) {
-        return dacDatabaseOperation.modifyObject(id, name, info, lastUpdateTime, executable);
+    public int modifyObject(int objectId, String name, String info, long lastUpdateTime, boolean executable) {
+        return dacDatabaseOperation.modifyObject(objectId, name, info, lastUpdateTime, executable);
+    }
+
+    public ACLObject queryOneObject(ACLObject object) {
+        return dacDatabaseOperation.queryOneObject(object.getId());
     }
 
     /**
@@ -126,17 +157,23 @@ public class DACManagement {
      * @param subject:      subject will be granted capability
      * @param object:       subject with capability
      * @return 0: created failed 1: created succeed 2:there is a black token 3: granted subject has not control of object;
-     * 4: have cyclical capability.
+     * 4: have cyclical capability; 5: granted subject = subject:error
      */
     public int createCapability(ACLSubject grantSubject, ACLSubject subject, ACLObject object, String capabilityString) {
+        if (grantSubject.getId() == subject.getId()) {
+            return 5;
+        }
         if (!dacDatabaseOperation.ifSubjectHaveControlOfObject(grantSubject.getId(), object.getId())) {
             return 3;
         }
-        if (dacDatabaseOperation.queryBlackTokenByObjectIdGrantedSubjectIdSubjectId(object.getId(),
+        BlackToken blackToken = dacDatabaseOperation.queryBlackTokenByObjectIdGrantedSubjectIdSubjectId(object.getId(),
                 grantSubject.getId(),
                 subject.getId(),
-                capabilityString).isBlackToken()) {
-            return 2;
+                capabilityString);
+        if (blackToken != null) {
+            if (blackToken.isBlackToken()) {
+                return 2;
+            }
         }
         if (capabilityString.charAt(3) == 'c') {
             if (dacDatabaseOperation.ifCyclicalCapability(grantSubject.getId(), subject.getId(), object)) {
@@ -145,6 +182,10 @@ public class DACManagement {
         }
         return createCapabilityDatabaseOperation(grantSubject, subject, object, capabilityString);
 
+    }
+
+    private int createSelfCapability(ACLSubject subject, ACLObject object, String capabilityString) {
+        return createCapabilityDatabaseOperation(subject, subject, object, capabilityString);
     }
 
     private int createCapabilityDatabaseOperation(ACLSubject grantedSubject,
@@ -156,8 +197,8 @@ public class DACManagement {
 
                 object.getId(),
                 object.getName(),
-                subject.getId(),
-                subject.getName(),
+                grantedSubject.getId(),
+                grantedSubject.getName(),
                 subject.getId(),
                 subject.getName(),
                 new Date().getTime(),

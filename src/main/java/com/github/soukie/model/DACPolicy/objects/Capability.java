@@ -3,6 +3,8 @@ package com.github.soukie.model.DACPolicy.objects;
 import com.github.soukie.model.DACPolicy.CapabilityList;
 import com.github.soukie.model.ModelValues;
 
+import java.util.Date;
+
 /**
  * The capability class that Subjects owned from Objects.
  * Created by qiyiy on 2016/1/5.
@@ -110,5 +112,22 @@ public class Capability {
     private void updateInfo() {
         this.capabilityInfo = grantedSubjectName +
                 " granted " + subjectName + " with " + objectName + ":" + capabilityString;
+    }
+
+    public static Capability makeCapability(ACLSubject grantedSubject,
+                                            ACLSubject subject,
+                                            ACLObject object,
+                                            String capabilityString) {
+        return new Capability(grantedSubject.getId() * 1000000 + subject.getId() * 1000 +
+                object.getId() + CapabilityList.capabilityStringToIntValue(capabilityString),
+
+                object.getId(),
+                object.getName(),
+                subject.getId(),
+                subject.getName(),
+                subject.getId(),
+                subject.getName(),
+                new Date().getTime(),
+                capabilityString);
     }
 }

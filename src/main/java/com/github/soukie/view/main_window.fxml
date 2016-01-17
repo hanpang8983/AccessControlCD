@@ -21,6 +21,7 @@
             <items>
               <MenuItem id="main_window_menu_Edit_ClearLog" fx:id="editMenuClearLog" mnemonicParsing="false" text="ClearLog" />
                   <MenuItem id="main_window_menu_Edit_Delete" fx:id="editMenuModifyAdminInfo" mnemonicParsing="false" text="Modify Admin Info" />
+                  <MenuItem fx:id="editMenuReflashDatabase" mnemonicParsing="false" text="Reflash Database" />
             </items>
           </Menu>
             <Menu id="main_window_menu_Edit" mnemonicParsing="false" text="DAC">
