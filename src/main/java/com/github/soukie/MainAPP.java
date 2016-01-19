@@ -5,7 +5,7 @@ import com.github.soukie.model.DACPolicy.objects.*;
 import com.github.soukie.model.ModelValues;
 import com.github.soukie.model.SystemUser.SystemAdminUser;
 import com.github.soukie.model.SystemUser.SystemUserManagement;
-import com.github.soukie.model.database.DACDatabaseOperation;
+import com.github.soukie.model.database.DatabaseOperation;
 import com.github.soukie.view.*;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -37,7 +37,7 @@ public class MainAPP extends Application {
     /**
      * DAC Database Handle.
      */
-    public DACDatabaseOperation dacDatabaseOperation;
+    public DatabaseOperation databaseOperation;
     /**
      * DAC Operation Handle.
      */
@@ -76,11 +76,11 @@ public class MainAPP extends Application {
     }
 
     private void initDatabaseConnectionAndManagement() {
-        //init DACDatabaseOperation and DACManagement.
-        dacDatabaseOperation = new DACDatabaseOperation(new Date().getTime());
+        //init DatabaseOperation and DACManagement.
+        databaseOperation = new DatabaseOperation(new Date().getTime());
         try {
-            dacDatabaseOperation.initDatabaseConnection(ModelValues.DATABASE_MYSQL_PROPERTIES_FILE_PATH);
-            dacManagement = new DACManagement(dacDatabaseOperation);
+            databaseOperation.initDatabaseConnection(ModelValues.DATABASE_MYSQL_PROPERTIES_FILE_PATH);
+            dacManagement = new DACManagement(databaseOperation);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -195,7 +195,7 @@ public class MainAPP extends Application {
 
     public void refreshDatabase() {
         //init dacAllSubjectsObservableList
-        ArrayList<ACLSubject> dacAllSubjects = dacDatabaseOperation.queryAllSubjects();
+        ArrayList<ACLSubject> dacAllSubjects = databaseOperation.queryAllSubjects();
         dacAllSubjectsObservableList.clear();
         if (dacAllSubjects != null) {
             dacAllSubjectsObservableList.addAll(dacAllSubjects.stream().map(ACLSubject::getName).collect(Collectors.toList()));
@@ -204,7 +204,7 @@ public class MainAPP extends Application {
         }
 
         //init dacAllObjectsObservableList
-        ArrayList<ACLObject> dacAllObjects = dacDatabaseOperation.queryAllObjects();
+        ArrayList<ACLObject> dacAllObjects = databaseOperation.queryAllObjects();
         dacAllObjectsObservableList.clear();
         if (dacAllObjects != null) {
             dacAllObjectsObservableList.addAll(dacAllObjects.stream().map(ACLObject::getName).collect(Collectors.toList()));
@@ -213,7 +213,7 @@ public class MainAPP extends Application {
         }
 
         //init dacAllCapabilitiesObservableList and dacAllCapabilitiesPropertyObservableList
-        ArrayList<Capability> dacAllCapabilities =dacDatabaseOperation.queryAllCapabilities();
+        ArrayList<Capability> dacAllCapabilities = databaseOperation.queryAllCapabilities();
         ArrayList<CapabilityProperty> dacAllCapabilitiesProperty;
         dacAllCapabilitiesObservableList.clear();
         dacAllCapabilitiesPropertyObservableList.clear();
@@ -227,7 +227,7 @@ public class MainAPP extends Application {
         }
 
         //init dacAllBlackTokensObservableList
-        ArrayList<BlackToken> dacAllBlackTokens = dacDatabaseOperation.queryAllBlackTokens();
+        ArrayList<BlackToken> dacAllBlackTokens = databaseOperation.queryAllBlackTokens();
         dacAllBlackTokensObservableList.clear();
         if (dacAllBlackTokens != null) {
             dacAllBlackTokensObservableList.addAll(dacAllBlackTokens.stream().map(BlackToken::getBlackTokenId).collect(Collectors.toList()));

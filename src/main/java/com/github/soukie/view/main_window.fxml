@@ -62,21 +62,18 @@
                     <items>
                       <MenuItem mnemonicParsing="false" text="Add Role" />
                         <MenuItem mnemonicParsing="false" text="Delete Role" />
-                        <MenuItem mnemonicParsing="false" text="Modify Role" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Users">
                     <items>
                       <MenuItem mnemonicParsing="false" text="Add User" />
                         <MenuItem mnemonicParsing="false" text="Delete User" />
-                        <MenuItem mnemonicParsing="false" text="Modify User" />
                     </items>
                   </Menu>
-                  <Menu mnemonicParsing="false" text="Authorities">
+                  <Menu mnemonicParsing="false" text="Permission">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Add Authority" />
-                        <MenuItem mnemonicParsing="false" text="Delete Authority" />
-                        <MenuItem mnemonicParsing="false" text="Modify Authority" />
+                      <MenuItem mnemonicParsing="false" text="Add Permission" />
+                        <MenuItem mnemonicParsing="false" text="Delete Permission" />
                     </items>
                   </Menu>
                </items>

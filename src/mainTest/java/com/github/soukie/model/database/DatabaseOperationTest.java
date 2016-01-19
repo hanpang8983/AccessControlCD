@@ -11,9 +11,9 @@ import java.util.Date;
 /**
  * Created by qiyiy on 2016/1/5.
  */
-public class DACDatabaseOperationTest extends TestCase{
+public class DatabaseOperationTest extends TestCase{
 
-    DACDatabaseOperation testDACDatabaseOperation;
+    DatabaseOperation testDatabaseOperation;
 
     @Test
     public void testChangeConnection() throws Exception {
@@ -45,10 +45,10 @@ public class DACDatabaseOperationTest extends TestCase{
     @Test
     public void testAddSubject() throws Exception {
         System.out.println("test start.");
-        testDACDatabaseOperation = new DACDatabaseOperation(new Date().getTime());
-        testDACDatabaseOperation.initDatabaseConnection("jdbc:mysql://127.0.0.1:3306/access_control_cd", "root", "142123");
+        testDatabaseOperation = new DatabaseOperation(new Date().getTime());
+        testDatabaseOperation.initDatabaseConnection("jdbc:mysql://127.0.0.1:3306/access_control_cd", "root", "142123");
 
-        Statement statement = testDACDatabaseOperation.getConnection().createStatement();
+        Statement statement = testDatabaseOperation.getConnection().createStatement();
         statement.executeUpdate(ModelValues.DAC_AL_BLACK_TOKEN_TABLE_CREATE_SQL);
     }
 }

@@ -5,7 +5,7 @@ import com.github.soukie.model.DACPolicy.objects.ACLSubject;
 import com.github.soukie.model.DACPolicy.objects.BlackToken;
 import com.github.soukie.model.DACPolicy.objects.Capability;
 import com.github.soukie.model.ModelValues;
-import com.github.soukie.model.database.DACDatabaseOperation;
+import com.github.soukie.model.database.DatabaseOperation;
 import com.github.soukie.model.security.SecurityEncode;
 
 import java.io.UnsupportedEncodingException;
@@ -22,19 +22,19 @@ import java.util.Date;
  * Created by qiyiy on 2016/1/9.
  */
 public class DACManagement {
-    private DACDatabaseOperation dacDatabaseOperation;
+    private DatabaseOperation databaseOperation;
 
     public DACManagement() {
-        this.dacDatabaseOperation = new DACDatabaseOperation(new Date().getTime());
+        databaseOperation = new DatabaseOperation(new Date().getTime());
         try {
-            this.dacDatabaseOperation.initDatabaseConnection(ModelValues.DATABASE_MYSQL_PROPERTIES_FILE_PATH);
+            databaseOperation.initDatabaseConnection(ModelValues.DATABASE_MYSQL_PROPERTIES_FILE_PATH);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    public DACManagement(DACDatabaseOperation dacDatabaseOperation) {
-        this.dacDatabaseOperation = dacDatabaseOperation;
+    public DACManagement(DatabaseOperation databaseOperation) {
+        this.databaseOperation = databaseOperation;
     }
 
     /**
@@ -45,7 +45,7 @@ public class DACManagement {
      */
     public int createSubject(ACLSubject createdSubject) {
         try {
-            return dacDatabaseOperation.addSubject(createdSubject.getId(),
+            return databaseOperation.addSubject(createdSubject.getId(),
                     createdSubject.getName(),
                     SecurityEncode.encoderByMd5(SecurityEncode.encoderByMd5(createdSubject.getPassword())),
                     createdSubject.getInfo(),
@@ -65,9 +65,9 @@ public class DACManagement {
      * @return 0: deleted failed; >0: deleted succeed
      */
     public int deleteSubject(int id) {
-        int deleteSubjectResult = dacDatabaseOperation.deleteSubject(id);
-        int deleteCapabilitiesBySubjectIdResult = dacDatabaseOperation.deleteCapabilityBySubjectId(id);
-        int deleteCapabilitiesByGrantedSubjectIdResult = dacDatabaseOperation.deleteCapabilityByGrantedSubjectId(id);
+        int deleteSubjectResult = databaseOperation.deleteSubject(id);
+        int deleteCapabilitiesBySubjectIdResult = databaseOperation.deleteCapabilityBySubjectId(id);
+        int deleteCapabilitiesByGrantedSubjectIdResult = databaseOperation.deleteCapabilityByGrantedSubjectId(id);
         return deleteCapabilitiesByGrantedSubjectIdResult | deleteCapabilitiesBySubjectIdResult | deleteSubjectResult;
     }
 
@@ -82,19 +82,19 @@ public class DACManagement {
      * @return 0: modified failed; >0: modified succeed
      */
     public int modifySubject(int id, String name, String password, String info, long lastUpdateTime) {
-        return dacDatabaseOperation.modifySubject(id, name, password, info, lastUpdateTime);
+        return databaseOperation.modifySubject(id, name, password, info, lastUpdateTime);
     }
 
     public ACLSubject queryOneSubject(ACLSubject subject) {
-        return dacDatabaseOperation.queryOneSubject(subject.getId());
+        return databaseOperation.queryOneSubject(subject.getId());
     }
 
     public int querySubjectIdByName(ACLSubject subject) {
-        return dacDatabaseOperation.querySubjectIdByName(subject.getName());
+        return databaseOperation.querySubjectIdByName(subject.getName());
     }
 
     public ArrayList<ACLSubject> queryAllSubjects() {
-        return dacDatabaseOperation.queryAllSubjects();
+        return databaseOperation.queryAllSubjects();
     }
 
 
@@ -108,7 +108,7 @@ public class DACManagement {
      * 2: created object and self capability succeed.
      */
     public int createObject(ACLSubject subject, ACLObject object) {
-        int addObjectResult = dacDatabaseOperation.addObject(object.getId(),
+        int addObjectResult = databaseOperation.addObject(object.getId(),
                 object.getName(),
                 object.getInfo(),
                 subject.getId(),
@@ -126,8 +126,8 @@ public class DACManagement {
      * @return 0: delete failed 1: deleted succeed
      */
     public int deleteObject(int objectId) {
-        int deleteObjectResult = dacDatabaseOperation.deleteObject(objectId);
-        int deleteCapabilitiesByObjectIdResult = dacDatabaseOperation.deleteCapabilityByObjectId(objectId);
+        int deleteObjectResult = databaseOperation.deleteObject(objectId);
+        int deleteCapabilitiesByObjectIdResult = databaseOperation.deleteCapabilityByObjectId(objectId);
         return deleteCapabilitiesByObjectIdResult | deleteObjectResult;
     }
 
@@ -143,11 +143,11 @@ public class DACManagement {
      * @return
      */
     public int modifyObject(int objectId, String name, String info, long lastUpdateTime, boolean executable) {
-        return dacDatabaseOperation.modifyObject(objectId, name, info, lastUpdateTime, executable);
+        return databaseOperation.modifyObject(objectId, name, info, lastUpdateTime, executable);
     }
 
     public ACLObject queryOneObject(ACLObject object) {
-        return dacDatabaseOperation.queryOneObject(object.getId());
+        return databaseOperation.queryOneObject(object.getId());
     }
 
     /**
@@ -157,16 +157,21 @@ public class DACManagement {
      * @param subject:      subject will be granted capability
      * @param object:       subject with capability
      * @return 0: created failed 1: created succeed 2:there is a black token 3: granted subject has not control of object;
-     * 4: have cyclical capability; 5: granted subject = subject:error
+     * 4: have cyclical capability; 5: granted subject = subject:error; 6: the granted subject haven't the capabilities
+     * like capability string of object
+     *
      */
     public int createCapability(ACLSubject grantSubject, ACLSubject subject, ACLObject object, String capabilityString) {
         if (grantSubject.getId() == subject.getId()) {
             return 5;
         }
-        if (!dacDatabaseOperation.ifSubjectHaveControlOfObject(grantSubject.getId(), object.getId())) {
+        if (!databaseOperation.ifSubjectHaveControlOfObject(grantSubject.getId(), object.getId())) {
             return 3;
         }
-        BlackToken blackToken = dacDatabaseOperation.queryBlackTokenByObjectIdGrantedSubjectIdSubjectId(object.getId(),
+        if (!databaseOperation.ifSubjectHaveCapabilitiesOfObject(grantSubject.getId(), object.getId(), capabilityString)) {
+            return 6;
+        }
+        BlackToken blackToken = databaseOperation.queryBlackTokenByObjectIdGrantedSubjectIdSubjectId(object.getId(),
                 grantSubject.getId(),
                 subject.getId(),
                 capabilityString);
@@ -176,7 +181,7 @@ public class DACManagement {
             }
         }
         if (capabilityString.charAt(3) == 'c') {
-            if (dacDatabaseOperation.ifCyclicalCapability(grantSubject.getId(), subject.getId(), object)) {
+            if (databaseOperation.ifCyclicalCapability(grantSubject.getId(), subject.getId(), object)) {
                 return 4;
             }
         }
@@ -203,7 +208,7 @@ public class DACManagement {
                 subject.getName(),
                 new Date().getTime(),
                 capabilityString);
-        return dacDatabaseOperation.addCapability(capability.getCapabilityId(),
+        return databaseOperation.addCapability(capability.getCapabilityId(),
                 capability.getObjectId(),
                 capability.getObjectName(),
                 capability.getGrantedSubjectId(),
@@ -227,12 +232,27 @@ public class DACManagement {
      * @return 0: deleted failed >0: deleted succeed
      */
     public int deleteCapability(int grantedSubjectId, int subjectId, int objectId, String capabilityString) {
-        int deleteCapabilityResult = dacDatabaseOperation.deleteCapabilityByGSSOCSId(grantedSubjectId,
+        int deleteCapabilityResult = databaseOperation.deleteCapabilityByGSSOCSId(grantedSubjectId,
                 subjectId,
                 objectId,
                 capabilityString);
-        dacDatabaseOperation.deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString(subjectId, objectId, capabilityString);
+        databaseOperation.deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString(subjectId, objectId, capabilityString);
         return deleteCapabilityResult;
+    }
+
+    /**
+     * The method to delete capability record according granted subject's name, subject's name, and object's name adn capability string
+     * @param grantedSubjectName: granted subject's name
+     * @param subjectName: subject's name
+     * @param objectName: object's name
+     * @param capabilityString: capability string
+     * @return 0: deleted failed >0: deleted succeed
+     */
+    public int deleteCapability(String grantedSubjectName, String subjectName, String objectName, String capabilityString) {
+        return deleteCapability(databaseOperation.querySubjectIdByName(grantedSubjectName),
+                databaseOperation.querySubjectIdByName(subjectName),
+                databaseOperation.queryObjectIdByName(objectName),
+                capabilityString);
     }
 
     /**
@@ -248,7 +268,7 @@ public class DACManagement {
                                 long lastUpdateTime,
                                 String newCapabilityString,
                                 String newCapabilityInfo) {
-        return dacDatabaseOperation.modifyCapability(capabilityId, lastUpdateTime, newCapabilityString, newCapabilityInfo);
+        return databaseOperation.modifyCapability(capabilityId, lastUpdateTime, newCapabilityString, newCapabilityInfo);
     }
 
     /**
@@ -266,7 +286,7 @@ public class DACManagement {
                                 String capabilityString,
                                 boolean blackToken) {
 
-        return dacDatabaseOperation.addBlackToken(grantedSubject.getId() * 1000000 + subject.getId() * 1000 +
+        return databaseOperation.addBlackToken(grantedSubject.getId() * 1000000 + subject.getId() * 1000 +
                 object.getId() + CapabilityList.capabilityStringToIntValue(capabilityString),
 
                 object.getId(),
@@ -284,7 +304,7 @@ public class DACManagement {
      * @return 0: deleted failed; 1: deleted succeed
      */
     public int deleteBlackToken(int blackTokenId) {
-        return dacDatabaseOperation.deleteBlackToken(blackTokenId);
+        return databaseOperation.deleteBlackToken(blackTokenId);
     }
 
     /**
@@ -295,7 +315,7 @@ public class DACManagement {
      * @return 0: modified failed; 1: modified succeed
      */
     public int modifyBlackToken(int blackTokenId, String capabilityString, boolean blackToken) {
-        return dacDatabaseOperation.modifyBlackToken(blackTokenId, capabilityString, blackToken);
+        return databaseOperation.modifyBlackToken(blackTokenId, capabilityString, blackToken);
     }
 
 

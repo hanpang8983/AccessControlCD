@@ -1,10 +1,13 @@
 package com.github.soukie.view;
 
 import com.github.soukie.MainAPP;
+import com.github.soukie.model.DACPolicy.CapabilityList;
 import com.github.soukie.model.DACPolicy.objects.ACLObject;
 import com.github.soukie.model.DACPolicy.objects.ACLSubject;
 import com.github.soukie.model.DACPolicy.objects.Capability;
 import com.github.soukie.model.DACPolicy.objects.CapabilityProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -168,7 +171,7 @@ public class MainWindowController {
 
     private void initMenuBar() {
         fileMenuClose.setOnAction(event -> {
-            mainAPP.dacDatabaseOperation.closeConnection();
+            mainAPP.databaseOperation.closeConnection();
             System.exit(0);
         });
 
@@ -235,7 +238,7 @@ public class MainWindowController {
 
             Optional<ACLObject> resultObject = dialog.showAndWait();
             if (resultObject.isPresent()) {
-                ACLSubject grantedSubject = mainAPP.dacDatabaseOperation.queryOneSubject(Integer.valueOf(objectIdTextField.getText()));
+                ACLSubject grantedSubject = mainAPP.databaseOperation.queryOneSubject(Integer.valueOf(objectIdTextField.getText()));
                 ACLObject object = resultObject.get();
                 int createResult = mainAPP.dacManagement.createObject(grantedSubject, object);
                 if (createResult == 2) {
@@ -245,7 +248,7 @@ public class MainWindowController {
                             object.getId() + 31);
                     mainAPP.dacAllCapabilitiesPropertyObservableList.add(
                             CapabilityProperty.capabilityToCapabilityProperty(
-                                    mainAPP.dacDatabaseOperation.queryOneCapability(
+                                    mainAPP.databaseOperation.queryOneCapability(
                                             grantedSubject.getId() * 1000000 +
                                                     grantedSubject.getId() * 1000 +
                                                     object.getId() + 31)));
@@ -291,7 +294,7 @@ public class MainWindowController {
 
             dialog.setResultConverter(param -> {
                 if (param == buttonTypeOk) {
-                    return mainAPP.dacManagement.deleteObject(mainAPP.dacDatabaseOperation.queryObjectIdByName(allObjectChoiceBox.getValue())) == 1;
+                    return mainAPP.dacManagement.deleteObject(mainAPP.databaseOperation.queryObjectIdByName(allObjectChoiceBox.getValue())) == 1;
                 }
                 return null;
             });
@@ -299,7 +302,7 @@ public class MainWindowController {
             Optional<Boolean> result = dialog.showAndWait();
             if (result.isPresent()) {
                 if (result.get()) {
-                    ArrayList<Capability> newCapabilities = mainAPP.dacDatabaseOperation.queryAllCapabilities();
+                    ArrayList<Capability> newCapabilities = mainAPP.databaseOperation.queryAllCapabilities();
                     mainAPP.dacAllCapabilitiesObservableList.clear();
                     mainAPP.dacAllCapabilitiesPropertyObservableList.clear();
                     if (newCapabilities != null) {
@@ -351,7 +354,7 @@ public class MainWindowController {
 
             dialog.setResultConverter(param -> {
                 if (param == buttonTypeOk) {
-                    return mainAPP.dacManagement.modifyObject(mainAPP.dacDatabaseOperation.queryObjectIdByName(allObjectsChoiceBox.getValue()),
+                    return mainAPP.dacManagement.modifyObject(mainAPP.databaseOperation.queryObjectIdByName(allObjectsChoiceBox.getValue()),
                             objectNameTextField.getText(),
                             "",
                             new Date().getTime(),
@@ -419,9 +422,9 @@ public class MainWindowController {
             final Capability[] addedCapability = new Capability[1];
             dialog.setResultConverter(param -> {
                 if (param == buttonTypeOk) {
-                    ACLSubject grantedSubject = mainAPP.dacDatabaseOperation.queryOneSubjectByName(grantedSubjectChoiceBox.getValue());
-                    ACLSubject subject = mainAPP.dacDatabaseOperation.queryOneSubjectByName(subjectChoiceBox.getValue());
-                    ACLObject object = mainAPP.dacDatabaseOperation.queryOneObjectByName(objectChoiceBox.getValue());
+                    ACLSubject grantedSubject = mainAPP.databaseOperation.queryOneSubjectByName(grantedSubjectChoiceBox.getValue());
+                    ACLSubject subject = mainAPP.databaseOperation.queryOneSubjectByName(subjectChoiceBox.getValue());
+                    ACLObject object = mainAPP.databaseOperation.queryOneObjectByName(objectChoiceBox.getValue());
                     String capabilityString = (ownCheckBox.isSelected() ? "o" : "-") +
                             (readCheckBox.isSelected() ? "r" : "-") +
                             (writeCheckBox.isSelected() ? "w" : "-") +
@@ -463,6 +466,11 @@ public class MainWindowController {
                     alert.setTitle("Granted Failed");
                     alert.setContentText("Granted Subject = Subject.");
                     alert.showAndWait();
+                } else if (result.get() == 6) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Granted Failed");
+                    alert.setContentText("The granted subject hasn't the capabilities of object.");
+                    alert.showAndWait();
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Granted Failed");
@@ -470,6 +478,181 @@ public class MainWindowController {
                     alert.showAndWait();
                 }
             }
+        });
+
+        dacDeleteCapability.setOnAction(event -> {
+            Dialog<Integer> dialog = new Dialog<>();
+            ObservableList<String> subjectsObservableList = FXCollections.observableArrayList();
+            ObservableList<String> objectsObservableList = FXCollections.observableArrayList();
+            ObservableList<String> capabilitiesObservableList = FXCollections.observableArrayList();
+            dialog.setResizable(true);
+            dialog.setTitle("Delete Capability");
+            dialog.setHeaderText("Delete A capability And Clear Capability Chain.");
+
+            Label choiceGrantedSubjectLabel = new Label("GrantedSubject: ");
+            ChoiceBox<String> grantedSubjectChoiceBox = new ChoiceBox<>(mainAPP.dacAllSubjectsObservableList);
+            Label subjectLabel = new Label("Subject: ");
+
+            ChoiceBox<String> subjectChoiceBox = new ChoiceBox<>();
+            subjectsObservableList.addAll(mainAPP.databaseOperation.queryCapabilitiesByGrantedSubjectName(
+                    grantedSubjectChoiceBox.getValue()).stream().map(Capability::getSubjectName).collect(Collectors.toList()));
+
+            subjectChoiceBox.setItems(subjectsObservableList);
+
+            Label objectLabel = new Label("Object: ");
+            ChoiceBox<String> objectChoiceBox = new ChoiceBox<>();
+            objectsObservableList.addAll(mainAPP.databaseOperation.queryCapabilitiesByGrantedSubjectNameAndSubjectName(
+                    grantedSubjectChoiceBox.getValue(),
+                    subjectChoiceBox.getValue()).stream().map(Capability::getObjectName).collect(Collectors.toList()));
+            objectChoiceBox.setItems(objectsObservableList);
+
+            Label capabilitiesLabel = new Label("Capabilities");
+            ChoiceBox<String> capabilitiesChoiceBox = new ChoiceBox<>();
+            capabilitiesObservableList.addAll(mainAPP.databaseOperation.queryCapabilitiesByGrantedSubjectNameAndSubjectNameAndObjectName(
+                    grantedSubjectChoiceBox.getValue(),
+                    subjectChoiceBox.getValue(),
+                    objectChoiceBox.getValue()).stream().map(Capability::getCapabilityString).collect(Collectors.toList()));
+            capabilitiesChoiceBox.setItems(capabilitiesObservableList);
+
+            GridPane gridPane = new GridPane();
+            gridPane.add(choiceGrantedSubjectLabel, 1, 1);
+            gridPane.add(grantedSubjectChoiceBox, 2, 1);
+            gridPane.add(subjectLabel, 1, 2);
+            gridPane.add(subjectChoiceBox, 2, 2);
+            gridPane.add(objectLabel, 1, 3);
+            gridPane.add(objectChoiceBox, 2, 3);
+            gridPane.add(capabilitiesLabel, 3, 2);
+            gridPane.add(capabilitiesChoiceBox, 4, 2);
+
+            dialog.getDialogPane().setContent(gridPane);
+
+            ButtonType buttonTypeOk = new ButtonType("Sure", ButtonBar.ButtonData.OK_DONE);
+            ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            dialog.getDialogPane().getButtonTypes().addAll(buttonTypeCancel, buttonTypeOk);
+
+            dialog.setResultConverter(param -> {
+                if (param == buttonTypeOk) {
+                    return mainAPP.dacManagement.deleteCapability(grantedSubjectChoiceBox.getValue(),
+                            subjectChoiceBox.getValue(),
+                            objectChoiceBox.getValue(),
+                            capabilitiesChoiceBox.getValue());
+                } else {
+                    return null;
+                }
+            });
+
+            Optional<Integer> result = dialog.showAndWait();
+
+            if (result.isPresent()) {
+                if (result.get() == 0) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Deleted Failed");
+                    alert.setContentText("The capability deleted failed.");
+                    alert.showAndWait();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Deleted Succeed");
+                    alert.setContentText("The capability deleted succeed.");
+                    alert.showAndWait();
+                }
+            }
+
+
+        });
+
+        dacModifyCapability.setOnAction(event -> {
+            Dialog<Integer> dialog = new Dialog<>();
+            dialog.setTitle("Modify Capability");
+            dialog.setResizable(true);
+            dialog.setHeaderText("Modify One Capability");
+        });
+
+        dacAddBlackToken.setOnAction(event -> {
+            Dialog<Integer> dialog = new Dialog<Integer>();
+            dialog.setTitle("Add BlockToken");
+            dialog.setResizable(true);
+            dialog.setHeaderText("Add One Block Token");
+
+            Label grantedSubjectLabel = new Label("Granted Subject: ");
+            ChoiceBox<String> grantedSubjectChoiceBox = new ChoiceBox<String>(mainAPP.dacAllSubjectsObservableList);
+            Label subjectLabel = new Label("Subject: ");
+            ChoiceBox<String> subjectChoiceBox = new ChoiceBox<>(mainAPP.dacAllSubjectsObservableList);
+            Label objectLabel = new Label("Object: ");
+            ChoiceBox<String> objectChoiceBox = new ChoiceBox<String>(mainAPP.dacAllObjectsObservableList);
+
+            Label choiceCapabilityLabel = new Label("Capability: ");
+            CheckBox ownCheckBox = new CheckBox("Own");
+            CheckBox readCheckBox = new CheckBox("Read");
+            CheckBox writeCheckBox = new CheckBox("Write");
+            CheckBox controlCheckBox = new CheckBox("Control");
+            CheckBox deleteCheckBox = new CheckBox("Delete");
+            CheckBox blackToken = new CheckBox("BlackToken");
+
+            GridPane gridPane = new GridPane();
+            gridPane.add(grantedSubjectLabel, 1, 1);
+            gridPane.add(grantedSubjectChoiceBox, 2, 1);
+            gridPane.add(subjectLabel, 1, 2);
+            gridPane.add(subjectChoiceBox, 2, 2);
+            gridPane.add(objectLabel, 1, 3);
+            gridPane.add(objectChoiceBox, 2, 3);
+            gridPane.add(choiceCapabilityLabel, 3, 1);
+            gridPane.add(ownCheckBox, 4, 1);
+            gridPane.add(readCheckBox, 4, 2);
+            gridPane.add(writeCheckBox, 4, 3);
+            gridPane.add(controlCheckBox, 4, 4);
+            gridPane.add(deleteCheckBox, 4, 5);
+            gridPane.add(blackToken, 1, 4);
+
+            dialog.getDialogPane().setContent(gridPane);
+
+            ButtonType buttonTypeOk = new ButtonType("Sure", ButtonBar.ButtonData.OK_DONE);
+            ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            dialog.getDialogPane().getButtonTypes().addAll(buttonTypeCancel, buttonTypeOk);
+
+            dialog.setResultConverter(param -> {
+                if (param == buttonTypeOk) {
+                    if (blackToken.isSelected()) {
+                        ACLSubject grantedSubject = mainAPP.databaseOperation.queryOneSubjectByName(grantedSubjectChoiceBox.getValue());
+                        ACLSubject subject = mainAPP.databaseOperation.queryOneSubjectByName(subjectChoiceBox.getValue());
+                        ACLObject object = mainAPP.databaseOperation.queryOneObjectByName(objectChoiceBox.getValue());
+                        String capabilityString = (ownCheckBox.isSelected() ? "o" : "-") +
+                                (readCheckBox.isSelected() ? "r" : "-") +
+                                (writeCheckBox.isSelected() ? "w" : "-") +
+                                (controlCheckBox.isSelected() ? "c" : "-") +
+                                (deleteCheckBox.isSelected() ? "d" : "-");
+                        mainAPP.dacAllBlackTokensObservableList.add(grantedSubject.getId() * 1000000 +
+                                subject.getId() * 1000 + object.getId() + CapabilityList.capabilityStringToIntValue(capabilityString));
+                        return mainAPP.dacManagement.createBlackToken(grantedSubject,
+                                subject,
+                                object,
+                                capabilityString,
+                                blackToken.isSelected());
+
+                    }
+
+                }
+                return null;
+            });
+
+            Optional<Integer> result = dialog.showAndWait();
+
+            if (result.isPresent()) {
+                if (result.get() == 0) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Added Failed");
+                    alert.setContentText("Added black token failed.");
+                    alert.showAndWait();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Added Succeed");
+                    alert.setContentText("Added black token succeed.");
+                    alert.showAndWait();
+                }
+            }
+
+
+
         });
 
         helpMenuAbout.setOnAction(event -> {

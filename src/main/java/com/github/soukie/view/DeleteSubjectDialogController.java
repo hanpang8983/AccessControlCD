@@ -33,8 +33,8 @@ public class DeleteSubjectDialogController {
     @FXML
     private void initialize() {
         sureButton.setOnAction(event -> {
-            mainAPP.dacManagement.deleteSubject(mainAPP.dacDatabaseOperation.querySubjectIdByName(subjectChoiceBox.getValue()));
-            ArrayList<Capability> newCapabilities = mainAPP.dacDatabaseOperation.queryAllCapabilities();
+            mainAPP.dacManagement.deleteSubject(mainAPP.databaseOperation.querySubjectIdByName(subjectChoiceBox.getValue()));
+            ArrayList<Capability> newCapabilities = mainAPP.databaseOperation.queryAllCapabilities();
             mainAPP.dacAllCapabilitiesObservableList.clear();
             mainAPP.dacAllCapabilitiesPropertyObservableList.clear();
             if (newCapabilities != null) {

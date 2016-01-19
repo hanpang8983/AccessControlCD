@@ -42,7 +42,7 @@ public class ModifySubjectDialogController {
         sureButton.setOnAction(event -> {
             if (subjectIdLabel.getText()!=null && subjectNameTextField.getText() != null && subjectPasswordTextField != null) {
                 try {
-                    mainAPP.dacManagement.modifySubject(mainAPP.dacDatabaseOperation.querySubjectIdByName(subjectNameTextField.getText()),
+                    mainAPP.dacManagement.modifySubject(mainAPP.databaseOperation.querySubjectIdByName(subjectNameTextField.getText()),
                             subjectNameTextField.getText(),
                             SecurityEncode.encoderByMd5(SecurityEncode.encoderByMd5(subjectPasswordTextField.getText())),
                             "",
