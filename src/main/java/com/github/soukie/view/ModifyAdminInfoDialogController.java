@@ -3,12 +3,15 @@ package com.github.soukie.view;
 import com.github.soukie.MainAPP;
 import com.github.soukie.model.ModelValues;
 import com.github.soukie.model.SystemUser.SystemUserManagement;
+import com.github.soukie.model.security.SecurityEncode;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 /**
@@ -48,7 +51,11 @@ public class ModifyAdminInfoDialogController {
     public void initialize() {
         modifyButton.setOnAction(event -> {
             mainAPP.getSystemAdminUser().setAdminName(adminNameTextField.getText());
-            mainAPP.getSystemAdminUser().setAdminPass(adminPasswordTextField.getText());
+            try {
+                mainAPP.getSystemAdminUser().setAdminPass(SecurityEncode.encoderByMd5(SecurityEncode.encoderByMd5(adminPasswordTextField.getText())));
+            } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             mainAPP.getSystemAdminUser().setAdminEmail(adminEmailTextField.getText());
             mainAPP.getSystemAdminUser().setAdminProfileUrl(adminProfileTextField.getText());
             mainAPP.getSystemAdminUser().setAdminPersonalWebsiteUrl(adminWebsiteUrlTextField.getText());

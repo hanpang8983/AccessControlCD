@@ -16,6 +16,15 @@ public class Permission {
         this.permissionInfo = permissionName + " created at " + new Date(createdTime);
     }
 
+    public String getPermissionName() {
+        return permissionName;
+    }
 
+    public String getPermissionInfo() {
+        return permissionInfo;
+    }
 
+    public long getCreatedTime() {
+        return createdTime;
+    }
 }

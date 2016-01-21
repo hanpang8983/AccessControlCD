@@ -119,6 +119,7 @@ public class ModelValues {
             ");";
     public static final String RBAC_RRA_TABLE_CREATE_SQL = "create table " +
             RBAC_RRA_TABLE_NAME +
+            "(" +
             "fatherRoleName varchar(255) not null," +
             "childrenRoleName varchar(255) not null" +
             ");";

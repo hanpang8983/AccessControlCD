@@ -44,14 +44,12 @@
                     <items>
                       <MenuItem fx:id="dacAddCapability" mnemonicParsing="false" text="Add Capability" />
                         <MenuItem fx:id="dacDeleteCapability" mnemonicParsing="false" text="Delete Capability" />
-                        <MenuItem fx:id="dacModifyCapability" mnemonicParsing="false" text="Modify Capability" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="BlackTokens">
                      <items>
                         <MenuItem fx:id="dacAddBlackToken" mnemonicParsing="false" text="Add Black Token" />
                         <MenuItem fx:id="dacDeleteBlackToken" mnemonicParsing="false" text="Delete Black Token" />
-                        <MenuItem fx:id="dacModifyBlackToken" mnemonicParsing="false" text="Modify Black Token" />
                      </items>
                   </Menu>
                </items>
@@ -60,20 +58,37 @@
                <items>
                   <Menu mnemonicParsing="false" text="Roles">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Add Role" />
-                        <MenuItem mnemonicParsing="false" text="Delete Role" />
+                      <MenuItem fx:id="rbacAddRole" mnemonicParsing="false" text="Add Role" />
+                        <MenuItem fx:id="rbacDeleteRole" mnemonicParsing="false" text="Delete Role" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Users">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Add User" />
-                        <MenuItem mnemonicParsing="false" text="Delete User" />
+                      <MenuItem fx:id="rbacAddUser" mnemonicParsing="false" text="Add User" />
+                        <MenuItem fx:id="rbacDeleteUser" mnemonicParsing="false" text="Delete User" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Permission">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Add Permission" />
-                        <MenuItem mnemonicParsing="false" text="Delete Permission" />
+                      <MenuItem fx:id="rbacAddPermission" mnemonicParsing="false" text="Add Permission" />
+                        <MenuItem fx:id="rbacDeletePermission" mnemonicParsing="false" text="Delete Permission" />
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Assigin">
+                    <items>
+                      <MenuItem fx:id="rbacAssginRoleToUser" mnemonicParsing="false" text="Assign role to user" />
+                        <MenuItem fx:id="rbacRevokeRoleFromUser" mnemonicParsing="false" text="Revoke role from user" />
+                        <MenuItem fx:id="rbacAssginPermissionToRole" mnemonicParsing="false" text="Assign permission to role" />
+                        <MenuItem fx:id="rbacRevokePermissionFromRole" mnemonicParsing="false" text="Revoke permission from role" />
+                        <MenuItem fx:id="rbacAssginCroleToFrole" mnemonicParsing="false" text="Assign Crole to Frole" />
+                        <MenuItem fx:id="rbacRevokeCroleFromFrole" mnemonicParsing="false" text="Revoke Crole from Frole" />
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Query">
+                    <items>
+                      <MenuItem fx:id="rbacQueryRolesOfUser" mnemonicParsing="false" text="Query roles of user" />
+                        <MenuItem fx:id="rbacQueryPermissionsOfRole" mnemonicParsing="false" text="Query permissions of role" />
+                        <MenuItem fx:id="rbacQueryPermissionsOfUser" mnemonicParsing="false" text="Query permissions of user" />
                     </items>
                   </Menu>
                </items>
@@ -87,22 +102,22 @@
           </Menu>
         </menus>
       </MenuBar>
-      <SplitPane dividerPositions="0.15, 0.8" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" prefWidth="900.0" VBox.vgrow="ALWAYS">
+      <SplitPane dividerPositions="0.15" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" prefWidth="900.0" VBox.vgrow="ALWAYS">
         <items>
             <GridPane>
                <children>
-                  <MenuBar fx:id="dacSubjectsMenuBar" snapToPixel="false" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
+                  <MenuBar fx:id="dacSubjectsMenuBar" focusTraversable="false" snapToPixel="false" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
                      <menus>
                         <Menu mnemonicParsing="false" text="DAC Policy" />
                      </menus>
                   </MenuBar>
-                  <Accordion GridPane.rowIndex="1">
+                  <Accordion GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
                     <panes>
                       <TitledPane fx:id="dacAllSubjectsTitledPane" animated="false" text="Subjects">
                         <content>
                           <AnchorPane fx:id="dacAllSubjectsAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
-                                    <ListView fx:id="dacAllSubjectsListView" layoutY="13.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                    <ListView fx:id="dacAllSubjectsListView" layoutY="-2.0" prefHeight="168.0" prefWidth="176.0" />
                                  </children></AnchorPane>
                         </content>
                       </TitledPane>
@@ -110,7 +125,7 @@
                         <content>
                           <AnchorPane fx:id="dacAllObjectsAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
-                                    <ListView fx:id="dacAllObjectsListView" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                    <ListView fx:id="dacAllObjectsListView" prefHeight="166.0" prefWidth="176.0" />
                                  </children></AnchorPane>
                         </content>
                       </TitledPane>
@@ -118,7 +133,7 @@
                         <content>
                           <AnchorPane fx:id="dacAllCapabilitiesAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
-                                    <ListView fx:id="dacAllCapabilitiesListView" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                    <ListView fx:id="dacAllCapabilitiesListView" prefHeight="164.0" prefWidth="176.0" />
                                  </children></AnchorPane>
                         </content>
                       </TitledPane>
@@ -126,7 +141,7 @@
                            <content>
                               <AnchorPane fx:id="dacAllBlackTokensAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
-                                    <ListView fx:id="dacAllBlackTokensListView" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                    <ListView fx:id="dacAllBlackTokensListView" layoutY="-1.0" prefHeight="167.0" prefWidth="176.0" />
                                  </children></AnchorPane>
                            </content>
                         </TitledPane>
@@ -143,12 +158,11 @@
             </GridPane>
             <ScrollPane prefHeight="204.0" prefWidth="265.0">
                <content>
-                  <TableView fx:id="dacAllCapabilitiesTableView" prefHeight="612.0" prefWidth="1175.0" />
+                  <TableView fx:id="dacAllCapabilitiesTableView" />
                </content></ScrollPane>
-            <ScrollPane fx:id="dacCapabilityDetailsScrollPane" prefHeight="206.0" prefWidth="176.0" />
         </items>
       </SplitPane>
-      <SplitPane dividerPositions="0.15, 0.8" layoutX="10.0" layoutY="42.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" prefWidth="900.0" VBox.vgrow="ALWAYS">
+      <SplitPane dividerPositions="0.15, 0.4, 0.65" layoutX="10.0" layoutY="42.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" VBox.vgrow="ALWAYS">
          <items>
             <GridPane>
                <children>
@@ -161,17 +175,26 @@
                     <panes>
                       <TitledPane fx:id="rbacAllRolesTitledPane" animated="false" text="Roles">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ListView fx:id="rbacAllRoleListView" prefHeight="212.0" prefWidth="176.0" />
+                                 </children></AnchorPane>
                         </content>
                       </TitledPane>
                       <TitledPane fx:id="rbacAllUsersTitledPane" animated="false" text="Users">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ListView fx:id="rbacAllUserListView" prefHeight="213.0" prefWidth="176.0" />
+                                 </children></AnchorPane>
                         </content>
                       </TitledPane>
-                      <TitledPane fx:id="rbacAllAuthoritiesTitledPane" animated="false" text="Authorities">
+                      <TitledPane fx:id="rbacAllAuthoritiesTitledPane" animated="false" text="Permissions">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ListView fx:id="rbacAllPermissionListView" layoutX="-2.0" prefHeight="214.0" prefWidth="176.0" />
+                                 </children></AnchorPane>
                         </content>
                       </TitledPane>
                     </panes>
@@ -185,13 +208,21 @@
                   <RowConstraints vgrow="ALWAYS" />
                </rowConstraints>
             </GridPane>
-            <ScrollPane prefHeight="204.0" prefWidth="448.0" />
-            <ScrollPane prefHeight="204.0" prefWidth="265.0" />
+            <ScrollPane prefHeight="332.0" prefWidth="472.0">
+               <content>
+                  <TableView fx:id="rbacAllURATableView" />
+               </content></ScrollPane>
+            <ScrollPane prefHeight="204.0" prefWidth="265.0">
+               <content>
+                  <TableView fx:id="rbacAllPRATableView" />
+               </content></ScrollPane>
+            <ScrollPane layoutX="10.0" layoutY="10.0" prefHeight="332.0" prefWidth="472.0">
+               <content>
+                  <TableView fx:id="rbacAllRRATableView" />
+               </content>
+            </ScrollPane>
          </items>
       </SplitPane>
-      <ScrollPane fx:id="runningLogScrollPane" prefHeight="100.0" prefWidth="1200.0">
-         <content>
-            <TextArea fx:id="runningLogTextArea" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="1182.0" />
-         </content></ScrollPane>
+      <TextArea fx:id="runningLogTextArea" maxWidth="1.7976931348623157E308" prefHeight="134.0" prefWidth="1200.0" />
    </children>
 </VBox>

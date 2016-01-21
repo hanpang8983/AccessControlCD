@@ -49,6 +49,6 @@ public class DatabaseOperationTest extends TestCase{
         testDatabaseOperation.initDatabaseConnection("jdbc:mysql://127.0.0.1:3306/access_control_cd", "root", "142123");
 
         Statement statement = testDatabaseOperation.getConnection().createStatement();
-        statement.executeUpdate(ModelValues.DAC_AL_BLACK_TOKEN_TABLE_CREATE_SQL);
+        statement.executeUpdate(ModelValues.RBAC_RRA_TABLE_CREATE_SQL);
     }
 }

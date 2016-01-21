@@ -12,7 +12,7 @@ public class User {
     public String userInfo;
     public final long createdTime;
 
-    private ArrayList<String> roleNames;
+    private ArrayList<String> roleNames = new ArrayList<>();
 
     public User(String userName, String password, long createdTime) {
         this.userName = userName;
@@ -44,7 +44,23 @@ public class User {
     public boolean removeRoleName(ArrayList<String> roleNames) {
         return this.roleNames.removeAll(roleNames);
     }
-    public ArrayList<String> getRolenames() {
+    public ArrayList<String> getRoleNames() {
         return roleNames;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getUserInfo() {
+        return userInfo;
+    }
+
+    public long getCreatedTime() {
+        return createdTime;
     }
 }

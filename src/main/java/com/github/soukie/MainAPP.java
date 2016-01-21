@@ -3,6 +3,8 @@ package com.github.soukie;
 import com.github.soukie.model.DACPolicy.DACManagement;
 import com.github.soukie.model.DACPolicy.objects.*;
 import com.github.soukie.model.ModelValues;
+import com.github.soukie.model.RABCPolicy.RBACManagement;
+import com.github.soukie.model.RABCPolicy.subjects.*;
 import com.github.soukie.model.SystemUser.SystemAdminUser;
 import com.github.soukie.model.SystemUser.SystemUserManagement;
 import com.github.soukie.model.database.DatabaseOperation;
@@ -49,6 +51,21 @@ public class MainAPP extends Application {
     public ObservableList<CapabilityProperty> dacAllCapabilitiesPropertyObservableList = FXCollections.observableArrayList();
     public ObservableList<Integer> dacAllBlackTokensObservableList = FXCollections.observableArrayList();
 
+    /**
+     * RBAC Operation Handel.
+     */
+    public RBACManagement rbacManagement;
+
+    public ObservableList<User> rbacAllUserObservableList = FXCollections.observableArrayList();
+    public ObservableList<Role> rbacAllRoleObservableList = FXCollections.observableArrayList();
+    public ObservableList<Permission> rbacAllPermissionObservableList = FXCollections.observableArrayList();
+    public ObservableList<String> rbacAllUserNameObservableList = FXCollections.observableArrayList();
+    public ObservableList<String> rbacAllRoleNameObservableList = FXCollections.observableArrayList();
+    public ObservableList<String> rbacAllPermissionNameObservableList = FXCollections.observableArrayList();
+    public ObservableList<URAProperty> rbacAllURAPropertiesObservableList = FXCollections.observableArrayList();
+    public ObservableList<PRAProperty> rbacAllPRAPropertiesObservableList = FXCollections.observableArrayList();
+    public ObservableList<RRAProperty> rbacAllRRAPropertiesObservableList = FXCollections.observableArrayList();
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
@@ -81,6 +98,7 @@ public class MainAPP extends Application {
         try {
             databaseOperation.initDatabaseConnection(ModelValues.DATABASE_MYSQL_PROPERTIES_FILE_PATH);
             dacManagement = new DACManagement(databaseOperation);
+            rbacManagement = new RBACManagement(databaseOperation);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -234,6 +252,36 @@ public class MainAPP extends Application {
         } else {
             dacAllBlackTokensObservableList.addAll(1);
         }
+
+        ArrayList<User> rbacAllUsers = rbacManagement.queryAllUsers();
+        rbacAllUserObservableList.clear();
+        rbacAllUserObservableList.addAll(rbacAllUsers);
+        rbacAllUserNameObservableList.clear();
+        rbacAllUserNameObservableList.addAll(rbacAllUserObservableList.stream().map(User::getUserName).collect(Collectors.toList()));
+
+        ArrayList<Role> rbacAllRoles = rbacManagement.queryAllRoles();
+        rbacAllRoleObservableList.clear();
+        rbacAllRoleObservableList.addAll(rbacAllRoles);
+        rbacAllRoleNameObservableList.clear();
+        rbacAllRoleNameObservableList.addAll(rbacAllRoleObservableList.stream().map(Role::getRoleName).collect(Collectors.toList()));
+
+        ArrayList<Permission> rbacAllPermissions = rbacManagement.queryAllPermissions();
+        rbacAllPermissionObservableList.clear();
+        rbacAllPermissionObservableList.addAll(rbacAllPermissions);
+        rbacAllPermissionNameObservableList.clear();
+        rbacAllPermissionNameObservableList.addAll(rbacAllPermissionObservableList.stream().map(Permission::getPermissionName).collect(Collectors.toList()));
+
+        ArrayList<URAProperty> rbacAllURAProperties = URAProperty.urasToURAProperties(databaseOperation.queryAllURA());
+        rbacAllURAPropertiesObservableList.clear();
+        rbacAllURAPropertiesObservableList.addAll(rbacAllURAProperties);
+
+        ArrayList<PRAProperty> rbacAllPRAProperties = PRAProperty.prasToPRAProperties(databaseOperation.queryAllPRA());
+        rbacAllPRAPropertiesObservableList.clear();
+        rbacAllPRAPropertiesObservableList.addAll(rbacAllPRAProperties);
+
+        ArrayList<RRAProperty> rbacAllRRAProperties = RRAProperty.rrasToRRAProperties(databaseOperation.queryAllRRA());
+        rbacAllRRAPropertiesObservableList.clear();
+        rbacAllRRAPropertiesObservableList.addAll(rbacAllRRAProperties);
     }
     public Stage getPrimaryStage() {
         return primaryStage;

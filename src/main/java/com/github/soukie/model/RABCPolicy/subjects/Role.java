@@ -11,12 +11,11 @@ import java.util.Date;
 public class Role {
 
     public final String roleName;
-    public String roleInfo;
     public final long createdTime;
-
+    public String roleInfo;
     private String fatherRoleName = ModelValues.ADMIN_ROLE_NAME;
-    private ArrayList<String> childrenRoleNames;
-    private ArrayList<String> permissionNames;
+    private ArrayList<String> childrenRoleNames = new ArrayList<>();
+    private ArrayList<String> permissionNames = new ArrayList<>();
 
     public Role(String roleName, long createdTime) {
         this.roleName = roleName;
@@ -25,19 +24,17 @@ public class Role {
         this.roleInfo = roleName + " created at " + new Date(createdTime);
     }
 
-    public void setRoleInfo(String roleInfo) {
-        this.roleInfo = roleInfo;
-    }
-
     public void addChildrenRoleName(String childrenRoleName) {
         childrenRoleNames.add(childrenRoleName);
     }
 
     public void addChildrenRoleNames(ArrayList<String> childrenRoleNames) {
+
         this.childrenRoleNames.addAll(childrenRoleNames);
+
     }
 
-    public boolean removeChildrenRoleName(String  childrenRoleName) {
+    public boolean removeChildrenRoleName(String childrenRoleName) {
         return childrenRoleNames.remove(childrenRoleName);
     }
 
@@ -49,7 +46,7 @@ public class Role {
         return childrenRoleNames;
     }
 
-    public void addPermissionName(String  permissionName) {
+    public void addPermissionName(String permissionName) {
         permissionNames.add(permissionName);
     }
 
@@ -64,12 +61,32 @@ public class Role {
     public boolean removePermissionNames(ArrayList<String> permissionNames) {
         return this.permissionNames.removeAll(permissionNames);
     }
+
     public ArrayList<String> getPermissionNames() {
         return permissionNames;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public String getRoleInfo() {
+        return roleInfo;
+    }
+
+    public void setRoleInfo(String roleInfo) {
+        this.roleInfo = roleInfo;
+    }
+
+    public long getCreatedTime() {
+        return createdTime;
+    }
+
+    public String getFatherRoleName() {
+        return fatherRoleName;
     }
 
     public void setFatherRoleName(String fatherRoleName) {
         this.fatherRoleName = fatherRoleName;
     }
-
 }

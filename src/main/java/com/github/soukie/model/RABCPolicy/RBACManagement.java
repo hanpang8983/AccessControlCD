@@ -123,16 +123,18 @@ public class RBACManagement {
         if (databaseOperation.queryURA(user.userName, role.roleName) != null) {
             return 2;
         }
-        user.addRoleName(role.roleName);
         return databaseOperation.addURA(user.userName, role.roleName);
     }
 
+    /**
+     * The method to delete URA record.
+     * @param user: user
+     * @param role: role
+     * @return 0: deleted failed 1: deleted succeed
+     */
     public int deleteURA(User user, Role role) {
-        int deleteResult = databaseOperation.deleteURA(user.userName, role.roleName);
-        if (deleteResult == 1) {
-            user.removeRoleName(role.roleName);
-        }
-        return deleteResult;
+
+        return databaseOperation.deleteURA(user.userName, role.roleName);
     }
 
     /**
@@ -146,16 +148,17 @@ public class RBACManagement {
         if (databaseOperation.queryPRA(role.roleName, permission.permissionName) != null) {
             return 2;
         }
-        role.addPermissionName(permission.permissionName);
         return databaseOperation.addPRA(role.roleName, permission.permissionName);
     }
 
+    /**
+     * The method to delete PRA record
+     * @param role: role
+     * @param permission: permission
+     * @return 0: failed; 1: succeed
+     */
     public int deletePRA(Role role, Permission permission) {
-        int deleteResult = databaseOperation.deletePRA(role.roleName, permission.permissionName);
-        if (deleteResult == 1) {
-            role.removePermissionName(permission.permissionName);
-        }
-        return deleteResult;
+        return databaseOperation.deletePRA(role.roleName, permission.permissionName);
     }
 
     /**
@@ -164,27 +167,73 @@ public class RBACManagement {
      * @param fatherRole:   father role
      * @param childrenRole: children role
      * @return 0: added failed; 1: added succeed; 2: the RRA record had already existed
+     * 3: father role is children role; 4: cyclical rra; 5: father was already children's father role
      */
     public int createRRA(Role fatherRole, Role childrenRole) {
+        if (fatherRole.roleName.equalsIgnoreCase(childrenRole.roleName)) {
+            return 3;
+        }
+        if (ifCyclical(fatherRole, childrenRole)) {
+            return 4;
+        }
+        if (childrenRole.getFatherRoleName().equalsIgnoreCase(fatherRole.roleName)) {
+            return 5;
+        }
         if (databaseOperation.queryRRA(fatherRole.roleName, childrenRole.roleName) != null) {
             return 2;
         }
-        fatherRole.addChildrenRoleName(childrenRole.roleName);
-        childrenRole.setFatherRoleName(fatherRole.roleName);
         return databaseOperation.addRRA(fatherRole.roleName, childrenRole.roleName);
     }
 
-    public int deleteRRA(Role fatherRole, Role childrenRole) {
-        int deleteResult = databaseOperation.deleteRRA(fatherRole.roleName, childrenRole.roleName);
-        if (deleteResult == 1) {
-            fatherRole.removeChildrenRoleName(childrenRole.roleName);
-            childrenRole.setFatherRoleName(ModelValues.ADMIN_ROLE_NAME);
+    /**
+     * The method to check if have cyclical rra between father and children.
+     * @param fatherRole father role
+     * @param childrenRole children role
+     * @return true or false
+     */
+    public boolean ifCyclical(Role fatherRole, Role childrenRole) {
+        if (childrenRole.getChildrenRoleNames().contains(fatherRole.roleName) ||
+                ifCyclical(fatherRole.roleName,childrenRole.roleName)) {
+            return true;
         }
-        return deleteResult;
+        return false;
+
+
+    }
+
+    /**
+     * The method to check if have cyclical rra between father and children
+     * @param fatherRoleName: father's name
+     * @param childrenRoleName: children's name
+     * @return true or false
+     */
+    public boolean ifCyclical(String fatherRoleName, String childrenRoleName) {
+        RRA rra = databaseOperation.queryRRAByChildrenRoleName(fatherRoleName);
+        if ( rra == null) {
+            return false;
+        } else {
+            if (rra.fatherRoleName.equalsIgnoreCase(childrenRoleName)) {
+                return true;
+            } else {
+                return ifCyclical(rra.fatherRoleName,childrenRoleName);
+            }
+        }
+
+    }
+
+    /**
+     * The method to delete RRA record
+     * @param fatherRole father role
+     * @param childrenRole children role
+     * @return 0: failed; 1: succeed
+     */
+    public int deleteRRA(Role fatherRole, Role childrenRole) {
+
+        return databaseOperation.deleteRRA(fatherRole.roleName, childrenRole.roleName);
     }
 
     public ArrayList<String> queryRoleNamesOfUser(User user) {
-        return user.getRolenames();
+        return user.getRoleNames();
     }
 
     public ArrayList<String> queryRoleNamesOfUser(String userName) {
@@ -212,11 +261,13 @@ public class RBACManagement {
         RRA rra = databaseOperation.queryRRAByChildrenRoleName(roleName);
         ArrayList<String> permissionNamesOfRoles = databaseOperation.queryPRAByRoleName(roleName).stream().
                 map(PRA::getPermissionName).collect(Collectors.toCollection(ArrayList<String>::new));
-        if (rra != null) {
-            permissionNamesOfRoles.addAll(databaseOperation.queryPRAByRoleName(rra.getFatherRoleName()).
-                    stream().map(PRA::getPermissionName).collect(Collectors.toCollection(ArrayList<String>::new)));
+        if (rra == null) {
+            return permissionNamesOfRoles;
+        } else {
+            permissionNamesOfRoles.addAll(queryPermissionNamesOfRoles(rra.getFatherRoleName()));
+            return permissionNamesOfRoles;
         }
-        return permissionNamesOfRoles;
+
     }
 
     /**

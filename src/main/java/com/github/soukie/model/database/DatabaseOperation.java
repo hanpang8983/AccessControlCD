@@ -733,13 +733,13 @@ public class DatabaseOperation {
 
     private int deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString(int grantedSubjectId, int objectId, String capabilityString, Statement statement) {
         int result = 0;
-        String deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString = "select * from" + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+        String deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString = "select * from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
                 " where grantedSubjectId=" + grantedSubjectId +
                 " and objectId=" + objectId +
                 " and capabilityString='" + capabilityString + "';";
         try (ResultSet resultSet = statement.executeQuery(deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString)) {
-            while (resultSet.next()) {
-                result += deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString(resultSet.getInt("subjectId"), objectId, capabilityString, statement);
+            if (resultSet.next()) {
+                result = deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString(resultSet.getInt("subjectId"), objectId, capabilityString, statement);
             }
             return result;
         } catch (SQLException e) {
@@ -755,7 +755,7 @@ public class DatabaseOperation {
      * @param subjectId:        subject's id
      * @param objectId"         object's id
      * @param capabilityString: capability string
-     * @return 0: deleted failed >0:deleted succeed.
+     * @return 0: deleted failed 1:deleted succeed; 2:the capability record is not existed.
      */
     public int deleteCapabilityByGSSOCSId(int grantedSubjectId, int subjectId, int objectId, String capabilityString) {
         String deleteCapabilityByGSSOIdSql = "delete from " + ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
@@ -763,6 +763,9 @@ public class DatabaseOperation {
                 " and subjectId=" + subjectId +
                 " and objectId=" + objectId +
                 " and capabilityString='" + capabilityString + "';";
+        if (queryCapabilityByGrantedSubjectIdSubejctIdObjectIdAndCapabiltiString(grantedSubjectId, subjectId, objectId, capabilityString) == null) {
+            return 2;
+        }
         try (
                 Statement statement = connection.createStatement()
         ) {
@@ -1387,6 +1390,38 @@ public class DatabaseOperation {
         }
     }
 
+    public Capability queryCapabilityByGrantedSubjectIdSubejctIdObjectIdAndCapabiltiString(int grantedSubjectId,
+                                                                                           int subjectId,
+                                                                                           int objectId,
+                                                                                           String capabilityString) {
+        String queryCapabilityByGrantedSubjectIdSubejctIdObjectIdAndCapabiltiStringSql = "select * from " +
+                ModelValues.DAC_AL_CAPABILITY_TABLE_NAME +
+                " where grantedSubjectId=" + grantedSubjectId +
+                " and subjectId=" + subjectId +
+                " and objectId=" + objectId +
+                " and capabilityString='" + capabilityString +
+                "';";
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(queryCapabilityByGrantedSubjectIdSubejctIdObjectIdAndCapabiltiStringSql)
+        ) {
+            if (resultSet.next()) {
+                return new Capability(resultSet.getInt("capabilityId"),
+                        resultSet.getInt("objectId"),
+                        resultSet.getString("objectName"),
+                        resultSet.getInt("grantedSubjectId"),
+                        resultSet.getString("grantedSubjectName"),
+                        resultSet.getInt("subjectId"),
+                        resultSet.getString("subjectName"),
+                        resultSet.getLong("createdTime"),
+                        resultSet.getString("capabilityString"));
+            }
+            return null;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
     public ArrayList<Capability> queryCapabilitiesByGrantedSubjectNameAndSubjectNameAndObjectName(String grantedSubjectName,
                                                                                                   String subjectName,
                                                                                                   String objectName) {
@@ -1442,7 +1477,7 @@ public class DatabaseOperation {
      * @param lastUpdateTime:   last update time
      * @param capabilityString: capability string
      * @param blackToken:       black token true or false
-     * @return 0: added failed; >0: added succeed
+     * @return 0: added failed; 1: added succeed; 2: the black token record is already existed
      */
     public int addBlackToken(int blackTokenId,
                              int objectId,
@@ -1461,11 +1496,14 @@ public class DatabaseOperation {
                 "'" + createdTime + "'," +
                 "'" + lastUpdateTime + "'," +
                 "'" + capabilityString + "'," +
-                "'" + blackToken + "'" +
+                blackToken +
                 ")";
+        if (queryBlackTokenByObjectIdGrantedSubjectIdSubjectId(objectId,grantedSubjectId, subjectId, capabilityString) != null) {
+            return 2;
+        }
         try (
                 Statement statement = connection.createStatement();
-                ResultSet checkResultSet = statement.executeQuery("show tables like " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME + ";")
+                ResultSet checkResultSet = statement.executeQuery("show tables like \"" + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME + "\";")
         ) {
             if (!checkResultSet.next()) {
                 statement.executeUpdate(ModelValues.DAC_AL_BLACK_TOKEN_TABLE_CREATE_SQL);
@@ -1486,6 +1524,35 @@ public class DatabaseOperation {
     public int deleteBlackToken(int blackTokenId) {
         String deleteBlackTokenSql = "delete from " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME +
                 " where blackTokenId=" + blackTokenId + ";";
+        try (
+                Statement statement = connection.createStatement()
+        ) {
+            return statement.executeUpdate(deleteBlackTokenSql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * The method to delete black token by granted subject's id, subject's id and object's id capability string
+     *
+     * @param grantedSubjectId: granted subject's id
+     * @param subjectId:        subject's id
+     * @param objectId:         object's id
+     * @param capabilityString: capability string
+     * @return 0: deleted failed; 1: deleted succeed; 2: there is no black token record
+     */
+    public int deleteBlackToken(int grantedSubjectId, int subjectId, int objectId, String capabilityString) {
+        String deleteBlackTokenSql = "delete from " + ModelValues.DAC_AL_BLACK_TOKEN_TABLE_NAME +
+                " where grantedSubjectId=" + grantedSubjectId +
+                " and subjectId=" + subjectId +
+                " and objectId=" + objectId +
+                " and capabilityString='" + capabilityString +
+                "';";
+        if (queryBlackTokenByObjectIdGrantedSubjectIdSubjectId(objectId,grantedSubjectId, subjectId, capabilityString) == null) {
+            return 2;
+        }
         try (
                 Statement statement = connection.createStatement()
         ) {
@@ -1905,7 +1972,7 @@ public class DatabaseOperation {
         ) {
             while (resultSet.next()) {
                 allRoles.add(new Role(resultSet.getString("roleName"),
-                        resultSet.getLong("createdName")));
+                        resultSet.getLong("createdTime")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -2456,7 +2523,7 @@ public class DatabaseOperation {
      * @return Succeed: RRA; Failed: null
      */
     public RRA queryRRA(String fatherRoleName, String childrenRoleName) {
-        String queryRRASql = "select * form " + ModelValues.RBAC_RRA_TABLE_NAME +
+        String queryRRASql = "select * from " + ModelValues.RBAC_RRA_TABLE_NAME +
                 " where fatherRoleName='" + fatherRoleName +
                 "' and childrenRoleName='" + childrenRoleName + "';";
         try (
@@ -2537,9 +2604,10 @@ public class DatabaseOperation {
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery(queryRRAByChildrenRoleNameSql)
         ) {
-            new RRA(resultSet.getString("fatherRoleName"),
-                    resultSet.getString("childrenRoleName"));
-
+            if (resultSet.next()) {
+                return new RRA(resultSet.getString("fatherRoleName"),
+                        resultSet.getString("childrenRoleName"));
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();

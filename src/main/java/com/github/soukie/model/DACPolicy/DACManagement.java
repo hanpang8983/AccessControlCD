@@ -98,7 +98,6 @@ public class DACManagement {
     }
 
 
-
     /**
      * The method to create a object record in database by subject.
      *
@@ -108,6 +107,7 @@ public class DACManagement {
      * 2: created object and self capability succeed.
      */
     public int createObject(ACLSubject subject, ACLObject object) {
+        int createSeletCapabilityResult = 0;
         int addObjectResult = databaseOperation.addObject(object.getId(),
                 object.getName(),
                 object.getInfo(),
@@ -115,7 +115,9 @@ public class DACManagement {
                 subject.getName(),
                 object.getCreateTime(),
                 object.isExecutable());
-        int createSeletCapabilityResult = createSelfCapability(subject, object, "orwcd");
+        if (addObjectResult == 1) {
+            createSeletCapabilityResult = createSelfCapability(subject, object, "orwcd");
+        }
         return addObjectResult == 0 ? 0 : (createSeletCapabilityResult == 0 ? 1 : 2);
     }
 
@@ -127,7 +129,10 @@ public class DACManagement {
      */
     public int deleteObject(int objectId) {
         int deleteObjectResult = databaseOperation.deleteObject(objectId);
-        int deleteCapabilitiesByObjectIdResult = databaseOperation.deleteCapabilityByObjectId(objectId);
+        int deleteCapabilitiesByObjectIdResult = 0;
+        if (deleteObjectResult == 1) {
+            deleteCapabilitiesByObjectIdResult = databaseOperation.deleteCapabilityByObjectId(objectId);
+        }
         return deleteCapabilitiesByObjectIdResult | deleteObjectResult;
     }
 
@@ -135,7 +140,7 @@ public class DACManagement {
     /**
      * The method to modify object's values includes name, info, lastUpdateTime and executeable
      *
-     * @param objectId:         object
+     * @param objectId:       object
      * @param name:           new name
      * @param info:           new info
      * @param lastUpdateTime: last update time
@@ -159,7 +164,6 @@ public class DACManagement {
      * @return 0: created failed 1: created succeed 2:there is a black token 3: granted subject has not control of object;
      * 4: have cyclical capability; 5: granted subject = subject:error; 6: the granted subject haven't the capabilities
      * like capability string of object
-     *
      */
     public int createCapability(ACLSubject grantSubject, ACLSubject subject, ACLObject object, String capabilityString) {
         if (grantSubject.getId() == subject.getId()) {
@@ -229,29 +233,32 @@ public class DACManagement {
      * @param subjectId:        subject's id
      * @param objectId:         object's id
      * @param capabilityString: capability string
-     * @return 0: deleted failed >0: deleted succeed
+     * @return 0: deleted failed 1: deleted succeed; 2: the capability record is not existed
      */
     public int deleteCapability(int grantedSubjectId, int subjectId, int objectId, String capabilityString) {
         int deleteCapabilityResult = databaseOperation.deleteCapabilityByGSSOCSId(grantedSubjectId,
                 subjectId,
                 objectId,
                 capabilityString);
-        databaseOperation.deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString(subjectId, objectId, capabilityString);
+        if (deleteCapabilityResult == 1) {
+            databaseOperation.deleteCapabilityByGrantedSubjectIdObjectIdCapabilityString(subjectId, objectId, capabilityString);
+        }
         return deleteCapabilityResult;
     }
 
     /**
      * The method to delete capability record according granted subject's name, subject's name, and object's name adn capability string
-     * @param grantedSubjectName: granted subject's name
-     * @param subjectName: subject's name
-     * @param objectName: object's name
-     * @param capabilityString: capability string
-     * @return 0: deleted failed >0: deleted succeed
+     *
+     * @param grantedSubject: granted subject
+     * @param subject:        subject
+     * @param object:         object
+     * @param capabilityString:   capability string
+     * @return 0: deleted failed 1: deleted succeed; 2: the capability record don't existed
      */
-    public int deleteCapability(String grantedSubjectName, String subjectName, String objectName, String capabilityString) {
-        return deleteCapability(databaseOperation.querySubjectIdByName(grantedSubjectName),
-                databaseOperation.querySubjectIdByName(subjectName),
-                databaseOperation.queryObjectIdByName(objectName),
+    public int deleteCapability(ACLSubject grantedSubject, ACLSubject subject, ACLObject object, String capabilityString) {
+        return deleteCapability(grantedSubject.getId(),
+                subject.getId(),
+                object.getId(),
                 capabilityString);
     }
 
@@ -273,12 +280,13 @@ public class DACManagement {
 
     /**
      * The method to create a black token record
-     * @param grantedSubject: granted subject
-     * @param subject: subject
-     * @param object: object
+     *
+     * @param grantedSubject:   granted subject
+     * @param subject:          subject
+     * @param object:           object
      * @param capabilityString: capability string
-     * @param blackToken: black token true or false
-     * @return 0: created failed; 1: created succeed
+     * @param blackToken:       black token true or false
+     * @return 0: created failed; 1: created succeed; 2: the black token record is already existed
      */
     public int createBlackToken(ACLSubject grantedSubject,
                                 ACLSubject subject,
@@ -287,7 +295,7 @@ public class DACManagement {
                                 boolean blackToken) {
 
         return databaseOperation.addBlackToken(grantedSubject.getId() * 1000000 + subject.getId() * 1000 +
-                object.getId() + CapabilityList.capabilityStringToIntValue(capabilityString),
+                        object.getId() + CapabilityList.capabilityStringToIntValue(capabilityString),
 
                 object.getId(),
                 grantedSubject.getId(),
@@ -300,6 +308,7 @@ public class DACManagement {
 
     /**
      * The method to delete a black token record
+     *
      * @param blackTokenId: black token's id
      * @return 0: deleted failed; 1: deleted succeed
      */
@@ -308,10 +317,24 @@ public class DACManagement {
     }
 
     /**
-     * The method to modify black token with new capability string or black token true or false by black token's id
-     * @param blackTokenId: black token's id
+     * The method to delete black token by granted subject subject object amd capability string
+     *
+     * @param grantedSubject: granted subject
+     * @param subject:        subject
+     * @param object:         object
      * @param capabilityString: capability string
-     * @param blackToken: black token true or false
+     * @return 0: deleted failed; 1: deleted succeed; 2: there is no black token record
+     */
+    public int deleteBlackToken(ACLSubject grantedSubject, ACLSubject subject, ACLObject object, String capabilityString) {
+        return databaseOperation.deleteBlackToken(grantedSubject.getId(), subject.getId(),object.getId(), capabilityString);
+    }
+
+    /**
+     * The method to modify black token with new capability string or black token true or false by black token's id
+     *
+     * @param blackTokenId:     black token's id
+     * @param capabilityString: capability string
+     * @param blackToken:       black token true or false
      * @return 0: modified failed; 1: modified succeed
      */
     public int modifyBlackToken(int blackTokenId, String capabilityString, boolean blackToken) {
